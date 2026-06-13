@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundations of Web3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #fff;
+  color: #1a1a1a;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck { width: 100vw; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: none;
+  padding: 64px 80px 80px 80px;
+}
+
+.slide.active { display: flex; }
+
+/* ===== LAYOUTS ===== */
+.layout-center {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.layout-split { flex-direction: row; align-items: center; }
+
+.layout-split .text-side {
+  flex: 1;
+  padding-right: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.layout-split .visual-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-top {
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 72px;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.title {
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+}
+
+.title-large { font-size: 64px; }
+
+.subtitle {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.65;
+  color: #5f5f5f;
+  margin-top: 20px;
+  max-width: 560px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #1a73e8;
+  margin-bottom: 16px;
+}
+
+.era-dates {
+  font-weight: 500;
+  font-size: 15px;
+  color: #999;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.accent { color: #1a73e8; }
+
+/* ===== COMPONENT LIST ===== */
+.components {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-width: 520px;
+}
+
+.component-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.component-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 9px;
+  flex-shrink: 0;
+}
+
+.component-text {
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: #444;
+}
+
+.component-text strong { color: #1a1a1a; font-weight: 600; }
+
+.role-line {
+  margin-top: 26px;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.role-line strong { font-weight: 700; }
+
+/* ===== DEFINITION CALLOUT ===== */
+.definition {
+  margin-top: 24px;
+  padding: 22px 26px;
+  background: #e8f0fe;
+  border-left: 4px solid #1a73e8;
+  border-radius: 8px;
+  max-width: 540px;
+}
+
+.definition .def-term {
+  font-weight: 700;
+  font-size: 17px;
+  color: #1a73e8;
+  margin-bottom: 6px;
+}
+
+.definition .def-body {
+  font-size: 17px;
+  line-height: 1.55;
+  color: #333;
+}
+
+.definition .def-body strong { color: #1a1a1a; font-weight: 600; }
+
+/* ===== PILLARS ===== */
+.pillars {
+  margin-top: 40px;
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.pillar {
+  flex: 1;
+  padding: 28px 24px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-top: 4px solid;
+}
+
+.pillar-num {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.pillar-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.pillar-desc {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #5f5f5f;
+}
+
+/* ===== TYPES TABLE ===== */
+.cmp-table {
+  margin-top: 32px;
+  width: 100%;
+  max-width: 960px;
+  border-collapse: collapse;
+}
+
+.cmp-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  padding: 0 18px 14px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.cmp-table td {
+  font-size: 15.5px;
+  color: #444;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f2f2f2;
+  vertical-align: top;
+}
+
+.cmp-table tr td:first-child { font-weight: 700; color: #1a1a1a; }
+
+.type-tag { display: inline-flex; align-items: center; gap: 8px; }
+.type-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ===== ROADMAP ===== */
+.roadmap {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+}
+
+.roadmap-row { display: flex; align-items: flex-start; gap: 16px; }
+
+.roadmap-badge {
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.roadmap-text { font-size: 16.5px; line-height: 1.55; color: #444; }
+.roadmap-text strong { color: #1a1a1a; font-weight: 600; }
+
+.closer {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid #eee;
+  font-size: 19px;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-style: italic;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* ===== NAV ===== */
+.nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 52px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100;
+}
+
+.nav-counter { font-size: 13px; font-weight: 500; color: #999; }
+.nav-dots { display: flex; gap: 6px; }
+
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: background 0.2s, width 0.2s;
+}
+
+.nav-dot.active { background: #1a73e8; width: 20px; border-radius: 3px; }
+
+.nav-btns { display: flex; gap: 4px; }
+
+.nav-btn {
+  width: 36px; height: 36px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover { background: #f8f8f8; color: #1a1a1a; }
+
+svg text { font-family: 'Outfit', sans-serif; }
+
+.course-tag {
+  position: fixed;
+  top: 26px;
+  right: 32px;
+  z-index: 101;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ccc;
+}
+
+/* ===== LOGO ===== */
+.logo-footer {
+  position: fixed;
+  top: 22px;
+  left: 32px;
+  z-index: 101;
+  opacity: 0.55;
+}
+
+.logo-footer img { height: 26px; width: auto; }
+
+.title-logo { margin-bottom: 36px; }
+.title-logo img { height: 54px; width: auto; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .slide { padding: 48px 32px 72px 32px; }
+  .layout-split { flex-direction: column; }
+  .layout-split .text-side { padding-right: 0; padding-bottom: 24px; }
+  .title { font-size: 34px; }
+  .title-large { font-size: 40px; }
+  .pillars { flex-direction: column; }
+  .cmp-table td, .cmp-table th { padding: 10px 8px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck"></div>
+
+<div class="logo-footer" id="logoFooter">
+  <img id="logoFooterImg" alt="Pan-Atlantic University" />
+</div>
+
+<div class="course-tag" id="courseTag">Week 2</div>
+
+<div class="nav">
+  <div class="nav-counter" id="counter">1 / 8</div>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prev()">←</button>
+    <button class="nav-btn" onclick="next()">→</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 8;
+let cur = 0;
+const PAU_LOGO = "data:image/jpeg;base64,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";
+
+// pillar colors
+const P1 = '#1a73e8', P2 = '#51CF66', P3 = '#FCC419', NEG = '#e05555';
+
+const slides = [
+
+// ── 1: TITLE ──
+`<div class="slide layout-center">
+  <div class="title-logo"><img src="${PAU_LOGO}" alt="Pan-Atlantic University" /></div>
+  <div class="label">Blockchain &amp; Mobile Technology · Week 2</div>
+  <div class="title title-large">Foundations<br>of Web3</div>
+  <div class="subtitle" style="text-align:center;margin-top:24px;">Why decentralization — and what a blockchain actually is.</div>
+  <div style="margin-top:44px;">
+    <svg viewBox="0 0 360 120" width="360" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // distributed mesh motif
+        const pts = [];
+        const n = 7;
+        for (let i=0;i<n;i++){
+          let a = (i/n)*6.28 - 1.57;
+          pts.push({x:180+Math.cos(a)*46, y:60+Math.sin(a)*46});
+        }
+        for (let i=0;i<n;i++){
+          for (let j=i+1;j<n;j++){
+            out += '<line x1="'+pts[i].x+'" y1="'+pts[i].y+'" x2="'+pts[j].x+'" y2="'+pts[j].y+'" stroke="'+P1+'" stroke-width="1" opacity="0.16"/>';
+          }
+        }
+        pts.forEach(p => {
+          out += '<circle cx="'+p.x+'" cy="'+p.y+'" r="9" fill="'+P1+'" opacity="0.12" stroke="'+P1+'" stroke-width="1.5"/>';
+          out += '<rect x="'+(p.x-3.5)+'" y="'+(p.y-3.5)+'" width="7" height="7" rx="1.5" fill="'+P1+'" opacity="0.6"/>';
+        });
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 2: THE PROBLEM WITH WEB2 ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${NEG};">The Problem</div>
+    <div class="title">Web2 Runs on<br><span style="color:${NEG};">Someone Else's</span><br>Servers</div>
+    <div class="subtitle" style="margin-top:14px;">In Web2 you can create — but a handful of platforms own the data, the rules, and the value.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>You don't own your data</strong> — the platform does</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Deplatforming</strong> — access can be revoked at will</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Single point of failure</strong> — one outage takes everyone down</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Value extraction</strong> — the middle layer captures the upside</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>You must trust</strong> the platform to behave</div></div>
+    </div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- central platform that everyone depends on -->
+      <rect x="150" y="150" width="80" height="56" rx="8" fill="${NEG}" opacity="0.14" stroke="${NEG}" stroke-width="1.5"/>
+      <text x="190" y="174" text-anchor="middle" font-size="11" font-weight="600" fill="${NEG}">PLATFORM</text>
+      <text x="190" y="190" text-anchor="middle" font-size="9" fill="#999">owns everything</text>
+      ${(() => {
+        let out = '';
+        const n = 8;
+        for (let i=0;i<n;i++){
+          let a = (i/n)*6.28;
+          let x = 190+Math.cos(a)*130, y = 178+Math.sin(a)*130;
+          out += '<line x1="190" y1="178" x2="'+x+'" y2="'+y+'" stroke="'+NEG+'" stroke-width="1.2" opacity="0.25"/>';
+          out += '<circle cx="'+x+'" cy="'+y+'" r="12" fill="#f4f4f4" stroke="'+NEG+'" stroke-width="1.2"/>';
+          out += '<circle cx="'+x+'" cy="'+(y-3)+'" r="3.5" fill="'+NEG+'" opacity="0.55"/>';
+          out += '<path d="M '+(x-6)+' '+(y+7)+' Q '+x+' '+y+' '+(x+6)+' '+(y+7)+'" stroke="'+NEG+'" stroke-width="1.2" fill="none" opacity="0.55"/>';
+        }
+        // warning mark on the center
+        out += '<text x="278" y="150" font-size="20" fill="'+NEG+'" opacity="0.7">⚠</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 3: THE ANSWER — DECENTRALIZATION ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">The Answer</div>
+    <div class="title">Remove the<br><span class="accent">Middle</span></div>
+    <div class="subtitle">Decentralization means no single party is in control. Instead of one server everyone depends on, the system runs across <strong style="color:#1a1a1a;">many independent computers</strong> that all hold the same records.</div>
+    <div class="subtitle">If any one node disappears or misbehaves, the network keeps running. There is no off-switch and no single owner.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // left: centralized (struck through) -> right: decentralized mesh
+        // centralized small
+        out += '<text x="80" y="40" text-anchor="middle" font-size="11" font-weight="600" fill="'+NEG+'">CENTRALIZED</text>';
+        out += '<circle cx="80" cy="110" r="14" fill="'+NEG+'" opacity="0.15" stroke="'+NEG+'" stroke-width="1.5"/>';
+        const sp = [[40,170],[80,180],[120,170]];
+        sp.forEach(p => {
+          out += '<line x1="80" y1="110" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+NEG+'" stroke-width="1" opacity="0.3"/>';
+          out += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="7" fill="#f4f4f4" stroke="'+NEG+'" stroke-width="1.2"/>';
+        });
+        out += '<line x1="45" y1="200" x2="115" y2="75" stroke="'+NEG+'" stroke-width="2.5" opacity="0.6"/>';
+        // arrow
+        out += '<text x="200" y="120" text-anchor="middle" font-size="28" fill="#ccc">→</text>';
+        // decentralized mesh
+        out += '<text x="300" y="40" text-anchor="middle" font-size="11" font-weight="600" fill="'+P2+'">DECENTRALIZED</text>';
+        const pts = [];
+        const n = 7;
+        for (let i=0;i<n;i++){
+          let a = (i/n)*6.28 - 1.57;
+          pts.push({x:300+Math.cos(a)*80, y:160+Math.sin(a)*80});
+        }
+        for (let i=0;i<n;i++){
+          for (let j=i+1;j<n;j++){
+            out += '<line x1="'+pts[i].x+'" y1="'+pts[i].y+'" x2="'+pts[j].x+'" y2="'+pts[j].y+'" stroke="'+P2+'" stroke-width="1" opacity="0.18"/>';
+          }
+        }
+        pts.forEach(p => {
+          out += '<circle cx="'+p.x+'" cy="'+p.y+'" r="12" fill="'+P2+'" opacity="0.14" stroke="'+P2+'" stroke-width="1.5"/>';
+          out += '<rect x="'+(p.x-4)+'" y="'+(p.y-4)+'" width="8" height="8" rx="1.5" fill="'+P2+'" opacity="0.6"/>';
+        });
+        out += '<text x="300" y="285" text-anchor="middle" font-size="11" fill="#999">every node holds the same records</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 4: WHAT IS A BLOCKCHAIN ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">The Core Idea</div>
+    <div class="title">So What Is a<br><span class="accent">Blockchain?</span></div>
+    <div class="definition">
+      <div class="def-term">Blockchain (distributed ledger)</div>
+      <div class="def-body">A <strong>shared, append-only ledger</strong> replicated across many independent computers, where <strong>no single party is in control</strong> and records <strong>can't be edited or deleted</strong> — only added.</div>
+    </div>
+    <div class="subtitle" style="font-size:16px;margin-top:20px;">It's a kind of database — but a normal database is controlled by one owner who can change or erase anything. A blockchain is distributed <em>and</em> decentralized <em>and</em> append-only.</div>
+    <div class="subtitle" style="font-size:14px;color:#999;margin-top:10px;"><em>How the blocks actually link together — that's next week.</em></div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- TOP: normal database -->
+      <text x="200" y="28" text-anchor="middle" font-size="11" font-weight="600" fill="${NEG}">NORMAL DATABASE</text>
+      <rect x="120" y="44" width="160" height="60" rx="8" fill="${NEG}" opacity="0.08" stroke="${NEG}" stroke-width="1.5"/>
+      <circle cx="150" cy="74" r="9" fill="${NEG}" opacity="0.5"/>
+      <text x="150" y="120" text-anchor="middle" font-size="9" fill="#999">one admin</text>
+      <text x="220" y="70" font-size="10" fill="#666">can edit ✎</text>
+      <text x="220" y="86" font-size="10" fill="#666">can delete ✕</text>
+      <!-- divider -->
+      <line x1="60" y1="140" x2="340" y2="140" stroke="#eee" stroke-width="1"/>
+      <!-- BOTTOM: blockchain -->
+      <text x="200" y="170" text-anchor="middle" font-size="11" font-weight="600" fill="${P1}">BLOCKCHAIN</text>
+      ${(() => {
+        let out = '';
+        // chain of blocks
+        const bx = [70, 150, 230, 310];
+        bx.forEach((x,i) => {
+          out += '<rect x="'+(x-26)+'" y="195" width="52" height="44" rx="6" fill="'+P1+'" opacity="0.1" stroke="'+P1+'" stroke-width="1.5"/>';
+          out += '<line x1="'+(x-18)+'" y1="208" x2="'+(x+18)+'" y2="208" stroke="'+P1+'" stroke-width="1.5" opacity="0.4"/>';
+          out += '<line x1="'+(x-18)+'" y1="218" x2="'+(x+10)+'" y2="218" stroke="'+P1+'" stroke-width="1.5" opacity="0.4"/>';
+          out += '<line x1="'+(x-18)+'" y1="228" x2="'+(x+14)+'" y2="228" stroke="'+P1+'" stroke-width="1.5" opacity="0.4"/>';
+          if (i < bx.length-1) out += '<line x1="'+(x+26)+'" y1="217" x2="'+(bx[i+1]-26)+'" y2="217" stroke="'+P1+'" stroke-width="2" opacity="0.5"/>';
+        });
+        out += '<text x="200" y="262" text-anchor="middle" font-size="10" fill="#999">append-only · linked blocks</text>';
+        // replicated across nodes
+        const ny = 300;
+        [110, 200, 290].forEach(x => {
+          out += '<circle cx="'+x+'" cy="'+ny+'" r="14" fill="'+P2+'" opacity="0.12" stroke="'+P2+'" stroke-width="1.3"/>';
+          out += '<rect x="'+(x-5)+'" y="'+(ny-5)+'" width="10" height="10" rx="2" fill="'+P2+'" opacity="0.55"/>';
+        });
+        out += '<line x1="124" y1="300" x2="186" y2="300" stroke="'+P2+'" stroke-width="1" opacity="0.3" stroke-dasharray="3 3"/>';
+        out += '<line x1="214" y1="300" x2="276" y2="300" stroke="'+P2+'" stroke-width="1" opacity="0.3" stroke-dasharray="3 3"/>';
+        out += '<text x="200" y="338" text-anchor="middle" font-size="10" fill="#999">same copy on every node</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 5: TYPES OF BLOCKCHAINS ──
+`<div class="slide layout-top">
+  <div class="label">Not All the Same</div>
+  <div class="title">Types of Blockchains</div>
+  <div class="subtitle" style="max-width:720px;">Blockchains differ by <strong style="color:#1a1a1a;">who is allowed to participate</strong> — anyone, or an approved set of members.</div>
+  <table class="cmp-table">
+    <thead>
+      <tr><th>Type</th><th>Who Can Join</th><th>Trust Model</th><th>Popular Examples</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="type-tag"><span class="type-swatch" style="background:${P1};"></span>Public</span></td>
+        <td>Anyone, permissionless</td>
+        <td>Trustless, fully open</td>
+        <td>Bitcoin, Ethereum</td>
+      </tr>
+      <tr>
+        <td><span class="type-tag"><span class="type-swatch" style="background:${P3};"></span>Private</span></td>
+        <td>One organization, by invite</td>
+        <td>Trust the operator</td>
+        <td>Internal enterprise ledgers</td>
+      </tr>
+      <tr>
+        <td><span class="type-tag"><span class="type-swatch" style="background:${P2};"></span>Consortium / Permissioned</span></td>
+        <td>A group of known members</td>
+        <td>Trust among vetted parties</td>
+        <td>Hyperledger Fabric, R3 Corda</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="subtitle" style="max-width:720px;margin-top:28px;font-size:16px;">This course focuses on <strong style="color:${P1};">public blockchains</strong> — the open, permissionless networks that power Web3.</div>
+</div>`,
+
+// ── 6: THE THREE PILLARS ──
+`<div class="slide layout-top">
+  <div class="label">What Holds It Up</div>
+  <div class="title">The Three Pillars</div>
+  <div class="subtitle" style="max-width:720px;">Three properties give a blockchain its power. Together they make the system verifiable without a central authority.</div>
+  <div class="pillars">
+    <div class="pillar" style="border-top-color:${P1};">
+      <div class="pillar-num" style="color:${P1};">Pillar 01</div>
+      <div class="pillar-name">Decentralization</div>
+      <div class="pillar-desc">No single point of control. The network is spread across many independent nodes, so no one can shut it down or seize it.</div>
+    </div>
+    <div class="pillar" style="border-top-color:${P2};">
+      <div class="pillar-num" style="color:${P2};">Pillar 02</div>
+      <div class="pillar-name">Transparency</div>
+      <div class="pillar-desc">Anyone can inspect the ledger. Transactions are open and auditable by all participants, not hidden in a private system.</div>
+    </div>
+    <div class="pillar" style="border-top-color:${P3};">
+      <div class="pillar-num" style="color:${P3};">Pillar 03</div>
+      <div class="pillar-name">Security &amp; Immutability</div>
+      <div class="pillar-desc">Records can't be quietly altered. Once written and agreed on by the network, history is permanent and tamper-evident.</div>
+    </div>
+  </div>
+</div>`,
+
+// ── 7: TRUSTLESSNESS ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">What Emerges</div>
+    <div class="title">Trustlessness:<br><span class="accent">Don't Trust,<br>Verify</span></div>
+    <div class="subtitle">When the three pillars hold, something powerful follows — you no longer need to <em>trust</em> a middleman. The system itself is verifiable.</div>
+    <div class="subtitle">Code and network consensus replace the bank, the broker, the platform. You don't trust a person to be honest; you verify the rules everyone is forced to follow.</div>
+    <div class="role-line">Trustlessness isn't a fourth pillar — it's the <strong class="accent">payoff</strong> of the other three.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // three pillars feeding into "trustlessness"
+        const pil = [
+          {x:70, c:P1, l:'Decentralization'},
+          {x:190, c:P2, l:'Transparency'},
+          {x:310, c:P3, l:'Immutability'},
+        ];
+        pil.forEach(p => {
+          out += '<rect x="'+(p.x-44)+'" y="50" width="88" height="40" rx="6" fill="'+p.c+'" opacity="0.1" stroke="'+p.c+'" stroke-width="1.5"/>';
+          out += '<text x="'+p.x+'" y="74" text-anchor="middle" font-size="10" font-weight="600" fill="'+p.c+'">'+p.l+'</text>';
+          out += '<line x1="'+p.x+'" y1="90" x2="190" y2="180" stroke="'+p.c+'" stroke-width="1.4" opacity="0.35"/>';
+        });
+        // central result
+        out += '<circle cx="190" cy="215" r="52" fill="'+P1+'" opacity="0.08" stroke="'+P1+'" stroke-width="2"/>';
+        out += '<text x="190" y="208" text-anchor="middle" font-size="13" font-weight="700" fill="'+P1+'">TRUSTLESS</text>';
+        out += '<text x="190" y="226" text-anchor="middle" font-size="10" fill="#666">verify, never trust</text>';
+        // no middleman: struck-out broker
+        out += '<rect x="130" y="300" width="120" height="36" rx="6" fill="#f4f4f4" stroke="'+NEG+'" stroke-width="1.3"/>';
+        out += '<text x="190" y="323" text-anchor="middle" font-size="11" fill="'+NEG+'">middleman removed</text>';
+        out += '<line x1="138" y1="332" x2="242" y2="304" stroke="'+NEG+'" stroke-width="2" opacity="0.6"/>';
+        out += '<line x1="190" y1="267" x2="190" y2="300" stroke="#ddd" stroke-width="1.4"/>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 8: WHERE THIS GOES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">Where This Goes</div>
+    <div class="title">From Idea to<br><span class="accent">Machinery</span></div>
+    <div class="subtitle" style="margin-top:12px;">We now know <em>what</em> a blockchain is and <em>why</em> it matters. The next weeks open the engine and show <em>how</em> it works.</div>
+    <div class="roadmap">
+      <div class="roadmap-row"><div class="roadmap-badge">Week 3</div><div class="roadmap-text"><strong>Blockchain &amp; cryptography core</strong> — blocks, hashing, keys, signatures, the double-spend problem</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 4</div><div class="roadmap-text"><strong>Consensus</strong> — how strangers agree without a boss (PoW, PoS)</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 5</div><div class="roadmap-text"><strong>Smart contracts &amp; tokens</strong> — programmable money and DAOs</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 6</div><div class="roadmap-text"><strong>dApps &amp; the Web3 stack</strong> — putting it all together</div></div>
+    </div>
+    <div class="closer">"You now have the 'why.' Next week we start on the 'how.'"</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 380" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const stops = [
+          {x:70, y:320, c:P1, l:'3'},
+          {x:150, y:240, c:P2, l:'4'},
+          {x:230, y:160, c:P3, l:'5'},
+          {x:310, y:80, c:'#1a73e8', l:'6'},
+        ];
+        let d = 'M '+stops[0].x+' '+stops[0].y;
+        stops.forEach(s => d += ' L '+s.x+' '+s.y);
+        out += '<path d="'+d+'" stroke="#e8e8e8" stroke-width="2" fill="none"/>';
+        stops.forEach(s => {
+          out += '<circle cx="'+s.x+'" cy="'+s.y+'" r="17" fill="'+s.c+'" opacity="0.12" stroke="'+s.c+'" stroke-width="1.5"/>';
+          out += '<text x="'+s.x+'" y="'+(s.y+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="'+s.c+'">'+s.l+'</text>';
+        });
+        out += '<text x="70" y="350" text-anchor="middle" font-size="9" fill="#999">core</text>';
+        out += '<text x="150" y="270" text-anchor="middle" font-size="9" fill="#999">consensus</text>';
+        out += '<text x="230" y="190" text-anchor="middle" font-size="9" fill="#999">contracts</text>';
+        out += '<text x="310" y="110" text-anchor="middle" font-size="9" fill="#999">dApps</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+];
+
+// ============ RENDER ============
+const deck = document.getElementById('deck');
+const dots = document.getElementById('dots');
+
+document.getElementById('logoFooterImg').src = PAU_LOGO;
+document.getElementById('logoFooter').style.display = 'none';
+
+slides.forEach((html, i) => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  const slide = wrapper.firstElementChild;
+  slide.classList.toggle('active', i === 0);
+  slide.id = 'sl' + i;
+  deck.appendChild(slide);
+
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => go(i);
+  dots.appendChild(dot);
+});
+
+function go(i) {
+  if (i < 0 || i >= TOTAL || i === cur) return;
+  document.getElementById('sl' + cur).classList.remove('active');
+  cur = i;
+  document.getElementById('sl' + cur).classList.add('active');
+  document.getElementById('logoFooter').style.display = (cur === 0) ? 'none' : 'block';
+  document.querySelectorAll('.nav-dot').forEach((d,j) => d.classList.toggle('active', j === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + TOTAL;
+  document.getElementById('courseTag').textContent = 'Week 2 · ' + (cur+1) + '/' + TOTAL;
+}
+
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => { let d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) d < 0 ? next() : prev(); });
+</script>
+</body>
+</html>
