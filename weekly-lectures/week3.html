@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blockchain &amp; Cryptography Core</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #fff;
+  color: #1a1a1a;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck { width: 100vw; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: none;
+  padding: 64px 80px 80px 80px;
+}
+
+.slide.active { display: flex; }
+
+/* ===== LAYOUTS ===== */
+.layout-center {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.layout-split { flex-direction: row; align-items: center; }
+
+.layout-split .text-side {
+  flex: 1;
+  padding-right: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.layout-split .visual-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-top {
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 72px;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.title {
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+}
+
+.title-large { font-size: 64px; }
+
+.subtitle {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.65;
+  color: #5f5f5f;
+  margin-top: 20px;
+  max-width: 560px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #1a73e8;
+  margin-bottom: 16px;
+}
+
+.era-dates {
+  font-weight: 500;
+  font-size: 15px;
+  color: #999;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.accent { color: #1a73e8; }
+
+/* ===== COMPONENT LIST ===== */
+.components {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-width: 520px;
+}
+
+.component-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.component-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 9px;
+  flex-shrink: 0;
+}
+
+.component-text {
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: #444;
+}
+
+.component-text strong { color: #1a1a1a; font-weight: 600; }
+
+.role-line {
+  margin-top: 26px;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.role-line strong { font-weight: 700; }
+
+/* ===== HOOK ===== */
+.hook-flow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
+.hook-word {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+.hook-word.dim { color: #ccc; font-weight: 600; }
+
+.hook-arrow { color: #1a73e8; font-size: 22px; font-weight: 400; }
+
+/* ===== DEFINITION CALLOUT ===== */
+.definition {
+  margin-top: 24px;
+  padding: 22px 26px;
+  background: #e8f0fe;
+  border-left: 4px solid #1a73e8;
+  border-radius: 8px;
+  max-width: 540px;
+}
+
+.definition .def-term {
+  font-weight: 700;
+  font-size: 17px;
+  color: #1a73e8;
+  margin-bottom: 6px;
+}
+
+.definition .def-body {
+  font-size: 17px;
+  line-height: 1.55;
+  color: #333;
+}
+
+.definition .def-body strong { color: #1a1a1a; font-weight: 600; }
+
+/* ===== TABLE ===== */
+.cmp-table {
+  margin-top: 32px;
+  width: 100%;
+  max-width: 960px;
+  border-collapse: collapse;
+}
+
+.cmp-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  padding: 0 18px 14px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.cmp-table td {
+  font-size: 15.5px;
+  color: #444;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f2f2f2;
+  vertical-align: top;
+}
+
+.cmp-table tr td:first-child { font-weight: 700; color: #1a1a1a; }
+
+.type-tag { display: inline-flex; align-items: center; gap: 8px; }
+.type-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ===== ROADMAP ===== */
+.roadmap {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+}
+
+.roadmap-row { display: flex; align-items: flex-start; gap: 16px; }
+
+.roadmap-badge {
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.roadmap-text { font-size: 16.5px; line-height: 1.55; color: #444; }
+.roadmap-text strong { color: #1a1a1a; font-weight: 600; }
+
+.closer {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid #eee;
+  font-size: 19px;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-style: italic;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* ===== NAV ===== */
+.nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 52px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100;
+}
+
+.nav-counter { font-size: 13px; font-weight: 500; color: #999; }
+.nav-dots { display: flex; gap: 6px; }
+
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: background 0.2s, width 0.2s;
+}
+
+.nav-dot.active { background: #1a73e8; width: 20px; border-radius: 3px; }
+
+.nav-btns { display: flex; gap: 4px; }
+
+.nav-btn {
+  width: 36px; height: 36px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover { background: #f8f8f8; color: #1a1a1a; }
+
+svg text { font-family: 'Outfit', sans-serif; }
+
+/* ===== HASH PLAYGROUND ===== */
+.pg {
+  margin-top: 26px;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pg-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.pg-input {
+  width: 100%;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  padding: 14px 16px;
+  border: 1.5px solid #e3e3e3;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #1a1a1a;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.pg-input:focus { border-color: #1a73e8; background: #fff; }
+
+.pg-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+
+.pg-select {
+  flex: 1;
+  min-width: 200px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 14px;
+  border: 1.5px solid #e3e3e3;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  outline: none;
+}
+
+.pg-select:focus { border-color: #1a73e8; }
+
+.pg-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.pg-btn:hover { filter: brightness(0.94); }
+
+.pg-btn.gen { background: #1a73e8; color: #fff; }
+.pg-btn.rev { background: #fff; color: #1a73e8; border: 1.5px solid #1a73e8; }
+
+.pg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.pg-output {
+  font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-all;
+  padding: 16px;
+  background: #f4f7fc;
+  border: 1.5px solid #e3ebf8;
+  border-radius: 10px;
+  color: #1a1a1a;
+  min-height: 58px;
+}
+
+.pg-output.empty { color: #bbb; font-style: italic; }
+
+.pg-status {
+  font-size: 14.5px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pg-status.neutral { background: #f6f6f6; color: #666; }
+.pg-status.ok { background: #eafbef; color: #2f7d3f; }
+.pg-status.fail { background: #fdeaea; color: #c0392b; }
+
+.pg-status .pg-mark { font-weight: 700; flex-shrink: 0; }
+
+.pg-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 9px;
+  border-radius: 100px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.pg-tag.oneway { background: #e8f0fe; color: #1a73e8; }
+.pg-tag.rev { background: #eafbef; color: #2f9e44; }
+
+@media (max-width: 900px) {
+  .pg { max-width: 100%; }
+  .pg-controls { flex-direction: column; }
+  .pg-select { min-width: 0; }
+}
+
+.course-tag {
+  position: fixed;
+  top: 26px;
+  right: 32px;
+  z-index: 101;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ccc;
+}
+
+/* ===== LOGO ===== */
+.logo-footer {
+  position: fixed;
+  top: 22px;
+  left: 32px;
+  z-index: 101;
+  opacity: 0.55;
+}
+
+.logo-footer img { height: 26px; width: auto; }
+
+.title-logo { margin-bottom: 36px; }
+.title-logo img { height: 54px; width: auto; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .slide { padding: 48px 32px 72px 32px; }
+  .layout-split { flex-direction: column; }
+  .layout-split .text-side { padding-right: 0; padding-bottom: 24px; }
+  .title { font-size: 34px; }
+  .title-large { font-size: 40px; }
+  .cmp-table td, .cmp-table th { padding: 10px 8px; font-size: 13px; }
+  .hook-word { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck"></div>
+
+<div class="logo-footer" id="logoFooter">
+  <img id="logoFooterImg" alt="Pan-Atlantic University" />
+</div>
+
+<div class="course-tag" id="courseTag">Week 3</div>
+
+<div class="nav">
+  <div class="nav-counter" id="counter">1 / 9</div>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prev()">←</button>
+    <button class="nav-btn" onclick="next()">→</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 9;
+let cur = 0;
+const PAU_LOGO = "data:image/jpeg;base64,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";
+
+/* concept palette — consistent with the course */
+const HASH = '#1a73e8'; /* blue   */
+const KEY  = '#51CF66'; /* green  */
+const SIG  = '#FCC419'; /* gold   */
+const NEG  = '#e05555'; /* red — tampering / double-spend */
+
+const slides = [
+
+// ── 1: TITLE ──
+`<div class="slide layout-center">
+  <div class="title-logo"><img src="${PAU_LOGO}" alt="Pan-Atlantic University" /></div>
+  <div class="label">Blockchain &amp; Mobile Technology · Week 3</div>
+  <div class="title title-large">Blockchain &amp;<br>Cryptography Core</div>
+  <div class="subtitle" style="text-align:center;margin-top:24px;">Opening the engine — how a blockchain actually works.</div>
+  <div style="margin-top:44px;">
+    <svg viewBox="0 0 460 130" width="460" height="130" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const bx = [70, 180, 290, 400];
+        bx.forEach((x,i) => {
+          // block
+          out += '<rect x="'+(x-30)+'" y="38" width="60" height="54" rx="7" fill="'+HASH+'" opacity="0.1" stroke="'+HASH+'" stroke-width="1.5"/>';
+          out += '<line x1="'+(x-20)+'" y1="54" x2="'+(x+20)+'" y2="54" stroke="'+HASH+'" stroke-width="1.5" opacity="0.4"/>';
+          out += '<line x1="'+(x-20)+'" y1="64" x2="'+(x+12)+'" y2="64" stroke="'+HASH+'" stroke-width="1.5" opacity="0.4"/>';
+          out += '<line x1="'+(x-20)+'" y1="74" x2="'+(x+16)+'" y2="74" stroke="'+HASH+'" stroke-width="1.5" opacity="0.4"/>';
+          // hash link
+          if (i < bx.length-1) {
+            out += '<line x1="'+(x+30)+'" y1="65" x2="'+(bx[i+1]-30)+'" y2="65" stroke="'+HASH+'" stroke-width="2" opacity="0.55"/>';
+            out += '<polygon points="'+(bx[i+1]-30)+',61 '+(bx[i+1]-30)+',69 '+(bx[i+1]-22)+',65" fill="'+HASH+'" opacity="0.55"/>';
+          }
+          out += '<text x="'+x+'" y="116" text-anchor="middle" font-size="12" font-weight="600" fill="'+HASH+'">#'+i+'</text>';
+        });
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 2: RECAP / HOOK ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">From Why to How</div>
+    <div class="title">Last Week the<br>Idea. Tonight the<br><span class="accent">Machinery</span>.</div>
+    <div class="subtitle" style="margin-top:14px;">Week 2 said a blockchain is shared, append-only, and <em>can't be edited</em>. But <strong style="color:#1a1a1a;">how</strong> is that actually enforced? It comes down to four cryptographic primitives.</div>
+    <div class="hook-flow">
+      <span class="hook-word" style="color:${HASH};">Hashing</span>
+      <span class="hook-arrow">→</span>
+      <span class="hook-word" style="color:${HASH};">Chaining</span>
+      <span class="hook-arrow">→</span>
+      <span class="hook-word" style="color:${KEY};">Keys</span>
+      <span class="hook-arrow">→</span>
+      <span class="hook-word" style="color:${SIG};">Signatures</span>
+    </div>
+    <div class="subtitle">Stack these four and something remarkable falls out: a system where you can't forge a record, can't quietly rewrite history, and can't spend the same coin twice.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 380" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const rows = [
+          {y:55,  c:HASH, t:'HASHING',    s:'a tamper-evident fingerprint'},
+          {y:135, c:HASH, t:'CHAINING',   s:'links blocks into one history'},
+          {y:215, c:KEY,  t:'KEYS',       s:'your identity &amp; control'},
+          {y:295, c:SIG,  t:'SIGNATURES', s:'prove it was you'},
+        ];
+        rows.forEach((r,i) => {
+          out += '<rect x="40" y="'+r.y+'" width="300" height="56" rx="10" fill="'+r.c+'" opacity="0.09" stroke="'+r.c+'" stroke-width="1.5"/>';
+          out += '<circle cx="74" cy="'+(r.y+28)+'" r="11" fill="'+r.c+'" opacity="0.85"/>';
+          out += '<text x="74" y="'+(r.y+32)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">'+(i+1)+'</text>';
+          out += '<text x="100" y="'+(r.y+24)+'" font-size="14" font-weight="700" fill="'+r.c+'">'+r.t+'</text>';
+          out += '<text x="100" y="'+(r.y+42)+'" font-size="11" fill="#888">'+r.s+'</text>';
+          if (i < rows.length-1) out += '<line x1="190" y1="'+(r.y+56)+'" x2="190" y2="'+(rows[i+1].y)+'" stroke="#e0e0e0" stroke-width="2"/>';
+        });
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 3: HASHING ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${HASH};">Primitive 01</div>
+    <div class="title">Hashing<br><span style="color:${HASH};">The Digital Fingerprint</span></div>
+    <div class="subtitle" style="margin-top:12px;">A hash function takes <em>any</em> input and returns a fixed-length string — a unique fingerprint of that data.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>Deterministic</strong> — same input always gives the same output</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>Fixed length</strong> — a tweet or a whole book → same size output</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>One-way</strong> — easy to compute, practically impossible to reverse</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>Avalanche effect</strong> — change one character, the whole hash changes</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>Collision-resistant</strong> — no two inputs share a fingerprint</div></div>
+    </div>
+    <div class="role-line">Bitcoin uses <strong style="color:${HASH};">SHA-256</strong> — a 256-bit (64-character) fingerprint.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- input A -->
+      <rect x="30" y="50" width="120" height="40" rx="8" fill="#f4f4f4" stroke="#ddd" stroke-width="1.3"/>
+      <text x="90" y="75" text-anchor="middle" font-size="13" fill="#444">"blockchain"</text>
+      <!-- function -->
+      <line x1="150" y1="70" x2="190" y2="70" stroke="${HASH}" stroke-width="1.5" opacity="0.5"/>
+      <polygon points="190,66 190,74 198,70" fill="${HASH}" opacity="0.5"/>
+      <rect x="200" y="50" width="170" height="40" rx="8" fill="${HASH}" opacity="0.12" stroke="${HASH}" stroke-width="1.5"/>
+      <text x="285" y="75" text-anchor="middle" font-size="12" font-weight="600" fill="${HASH}">SHA-256</text>
+      <!-- output A -->
+      <line x1="285" y1="90" x2="285" y2="118" stroke="${HASH}" stroke-width="1.5" opacity="0.5"/>
+      <polygon points="281,118 289,118 285,126" fill="${HASH}" opacity="0.5"/>
+      <rect x="60" y="128" width="280" height="34" rx="7" fill="${HASH}" opacity="0.06" stroke="${HASH}" stroke-width="1.2"/>
+      <text x="200" y="150" text-anchor="middle" font-size="13" fill="${HASH}" font-family="monospace">ef7c8d…2a9b41</text>
+      <!-- divider note -->
+      <text x="200" y="200" text-anchor="middle" font-size="11" font-weight="600" fill="${NEG}">change ONE letter…</text>
+      <!-- input B -->
+      <rect x="30" y="218" width="120" height="40" rx="8" fill="#f4f4f4" stroke="#ddd" stroke-width="1.3"/>
+      <text x="90" y="243" text-anchor="middle" font-size="13" fill="#444">"Blockchain"</text>
+      <line x1="150" y1="238" x2="190" y2="238" stroke="${NEG}" stroke-width="1.5" opacity="0.5"/>
+      <polygon points="190,234 190,242 198,238" fill="${NEG}" opacity="0.5"/>
+      <rect x="200" y="218" width="170" height="40" rx="8" fill="${HASH}" opacity="0.12" stroke="${HASH}" stroke-width="1.5"/>
+      <text x="285" y="243" text-anchor="middle" font-size="12" font-weight="600" fill="${HASH}">SHA-256</text>
+      <line x1="285" y1="258" x2="285" y2="286" stroke="${NEG}" stroke-width="1.5" opacity="0.5"/>
+      <polygon points="281,286 289,286 285,294" fill="${NEG}" opacity="0.5"/>
+      <rect x="60" y="296" width="280" height="34" rx="7" fill="${NEG}" opacity="0.07" stroke="${NEG}" stroke-width="1.2"/>
+      <text x="200" y="318" text-anchor="middle" font-size="13" fill="${NEG}" font-family="monospace">91b0a4…7fe3dc</text>
+      <text x="200" y="350" text-anchor="middle" font-size="10" fill="#bbb">hashes shown are illustrative</text>
+    </svg>
+  </div>
+</div>`,
+
+// ── 4: HASH PLAYGROUND (interactive) ──
+`<div class="slide layout-split">
+  <div class="text-side" style="padding-right:48px;">
+    <div class="label" style="color:${HASH};">Try It · Live</div>
+    <div class="title" style="font-size:44px;">One-Way, or<br><span style="color:${HASH};">Reversible?</span></div>
+    <div class="subtitle" style="margin-top:12px;font-size:18px;">Type something, pick a function, and hit <strong style="color:#1a1a1a;">Generate</strong>. Then try <strong style="color:#1a1a1a;">Reverse</strong> — a true hash will refuse, because the input is gone for good. An <em>encoding</em> like Base64 hands it right back.</div>
+    <div class="components" style="margin-top:22px;">
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text"><strong>SHA-256 / 512, Keccak-256</strong> — hashes. One-way. Reverse fails.</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${KEY};"></div><div class="component-text"><strong>Base64, ROT13</strong> — encodings. Reversible. Reverse recovers the input.</div></div>
+    </div>
+    <div class="role-line" style="margin-top:22px;">A hash <strong style="color:${HASH};">destroys</strong> information on purpose — that's what makes it trustworthy.</div>
+  </div>
+  <div class="visual-side" style="align-items:flex-start;padding-top:8px;">
+    <div class="pg">
+      <div class="pg-field">
+        <label for="pgInput">Input</label>
+        <textarea id="pgInput" class="pg-input" rows="2" placeholder="Type anything…">blockchain</textarea>
+      </div>
+      <div class="pg-field">
+        <label for="pgFunc">Function</label>
+        <div class="pg-controls">
+          <select id="pgFunc" class="pg-select">
+            <option value="sha256" data-rev="0">SHA-256 · one-way</option>
+            <option value="sha512" data-rev="0">SHA-512 · one-way</option>
+            <option value="keccak256" data-rev="0">Keccak-256 · one-way</option>
+            <option value="base64" data-rev="1">Base64 · reversible</option>
+            <option value="rot13" data-rev="1">ROT13 · reversible</option>
+          </select>
+          <button id="pgGen" class="pg-btn gen">Generate</button>
+          <button id="pgRev" class="pg-btn rev">Reverse</button>
+        </div>
+      </div>
+      <div class="pg-field">
+        <label>Output <span id="pgTag" class="pg-tag oneway">ONE-WAY</span></label>
+        <div id="pgOut" class="pg-output empty">— press Generate —</div>
+      </div>
+      <div id="pgStatus" class="pg-status neutral"><span class="pg-mark">›</span><span id="pgStatusText">Pick a function and generate a fingerprint.</span></div>
+    </div>
+  </div>
+</div>`,
+
+// ── 5: BLOCKS & THE CHAIN ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${HASH};">Primitive 02 · Where Immutability Comes From</div>
+    <div class="title">Blocks, Linked<br>by <span style="color:${HASH};">Hashes</span></div>
+    <div class="subtitle" style="margin-top:12px;">Each block carries its data plus <strong style="color:#1a1a1a;">its own hash</strong> and <strong style="color:#1a1a1a;">the hash of the block before it</strong>. That backward reference is the "chain."</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text">A block = <strong>data + timestamp + own hash + previous hash</strong></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text">The chain starts at the <strong>genesis block</strong> (block #0)</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Tamper with any block</strong> → its hash changes → it no longer matches the "previous hash" in the next block</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text">The break is <strong>visible to everyone</strong> — and every later block breaks too</div></div>
+    </div>
+    <div class="role-line">This is <strong style="color:${HASH};">immutability</strong>: history is tamper-<em>evident</em> by design.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const blocks = [
+          {y:30,  i:'0', ok:true},
+          {y:130, i:'1', ok:true},
+          {y:230, i:'2', ok:false}, // tampered
+        ];
+        blocks.forEach((b,idx) => {
+          const c = b.ok ? HASH : NEG;
+          out += '<rect x="90" y="'+b.y+'" width="220" height="80" rx="9" fill="'+c+'" opacity="0.09" stroke="'+c+'" stroke-width="1.6"/>';
+          out += '<text x="106" y="'+(b.y+22)+'" font-size="12" font-weight="700" fill="'+c+'">BLOCK #'+b.i+'</text>';
+          out += '<text x="106" y="'+(b.y+42)+'" font-size="10.5" fill="#777">data · timestamp</text>';
+          out += '<text x="106" y="'+(b.y+58)+'" font-size="10.5" fill="#777">prev: '+(idx===0?'0000':'hash #'+(idx-1))+'</text>';
+          out += '<text x="106" y="'+(b.y+72)+'" font-size="10.5" fill="'+c+'" font-weight="600">hash: '+(b.ok?'a4f…9c':'XX…✗')+'</text>';
+          // chain link to next
+          if (idx < blocks.length-1) {
+            const broken = !blocks[idx+1].ok;
+            const lc = broken ? NEG : HASH;
+            out += '<line x1="200" y1="'+(b.y+80)+'" x2="200" y2="'+(blocks[idx+1].y)+'" stroke="'+lc+'" stroke-width="2.5" opacity="'+(broken?'0.7':'0.5')+'" '+(broken?'stroke-dasharray="5 4"':'')+'/>';
+            if (!broken) out += '<polygon points="196,'+(blocks[idx+1].y-8)+' 204,'+(blocks[idx+1].y-8)+' 200,'+(blocks[idx+1].y)+'" fill="'+lc+'" opacity="0.5"/>';
+          }
+        });
+        // tamper marker
+        out += '<text x="330" y="278" font-size="20" fill="'+NEG+'" opacity="0.8">⚠</text>';
+        out += '<text x="200" y="346" text-anchor="middle" font-size="11" fill="'+NEG+'" font-weight="600">edit block #2 → link breaks, everyone sees it</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 6: PUBLIC & PRIVATE KEYS ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${KEY};">Primitive 03</div>
+    <div class="title">Public &amp;<br><span style="color:${KEY};">Private Keys</span></div>
+    <div class="subtitle" style="margin-top:12px;">Hashing protects the <em>record</em>. Keys answer a different question: <strong style="color:#1a1a1a;">who owns what, and who's allowed to move it?</strong></div>
+    <div class="definition" style="background:#eafbef;border-left-color:${KEY};">
+      <div class="def-term" style="color:#2f9e44;">A key pair</div>
+      <div class="def-body">A linked <strong>private key</strong> (kept secret) and <strong>public key</strong> (shared freely). You can derive the public key from the private one — <strong>never the reverse</strong>.</div>
+    </div>
+    <div class="components" style="margin-top:20px;">
+      <div class="component-row"><div class="component-dot" style="background:${KEY};"></div><div class="component-text"><strong>Public key / address</strong> — like an account number; share it to receive</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${KEY};"></div><div class="component-text"><strong>Private key</strong> — proves control; whoever holds it owns the assets</div></div>
+    </div>
+    <div class="role-line">"<strong style="color:${KEY};">Not your keys, not your coins.</strong>" The private key <em>is</em> ownership.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 340" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- private key -->
+      <rect x="40" y="120" width="130" height="90" rx="12" fill="${NEG}" opacity="0.08" stroke="${NEG}" stroke-width="1.6"/>
+      <text x="105" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="${NEG}">PRIVATE KEY</text>
+      <circle cx="105" cy="158" r="15" fill="none" stroke="${NEG}" stroke-width="2.4"/>
+      <rect x="100" y="166" width="10" height="22" rx="2" fill="${NEG}"/>
+      <text x="105" y="228" text-anchor="middle" font-size="10" fill="#999">keep secret</text>
+      <!-- one-way arrow -->
+      <line x1="178" y1="165" x2="222" y2="165" stroke="${KEY}" stroke-width="2" opacity="0.6"/>
+      <polygon points="222,160 222,170 232,165" fill="${KEY}" opacity="0.7"/>
+      <text x="205" y="152" text-anchor="middle" font-size="9" fill="#999">derive</text>
+      <text x="205" y="188" text-anchor="middle" font-size="14" fill="${NEG}">✕</text>
+      <text x="205" y="202" text-anchor="middle" font-size="8" fill="#bbb">no reverse</text>
+      <!-- public key -->
+      <rect x="238" y="120" width="110" height="90" rx="12" fill="${KEY}" opacity="0.1" stroke="${KEY}" stroke-width="1.6"/>
+      <text x="293" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#2f9e44">PUBLIC KEY</text>
+      <circle cx="293" cy="158" r="14" fill="none" stroke="${KEY}" stroke-width="2.4"/>
+      <circle cx="293" cy="158" r="5" fill="${KEY}"/>
+      <text x="293" y="228" text-anchor="middle" font-size="10" fill="#999">share freely</text>
+      <text x="190" y="285" text-anchor="middle" font-size="11" fill="#999">elliptic-curve cryptography links the pair</text>
+    </svg>
+  </div>
+</div>`,
+
+// ── 7: DIGITAL SIGNATURES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${SIG};">Primitive 04</div>
+    <div class="title">Digital<br><span style="color:#d9a300;">Signatures</span></div>
+    <div class="subtitle" style="margin-top:12px;">To move funds, you <strong style="color:#1a1a1a;">sign</strong> the transaction with your private key. Anyone can <strong style="color:#1a1a1a;">verify</strong> it with your public key.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${SIG};"></div><div class="component-text"><strong>Authenticity</strong> — only the private-key holder could have signed it</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${SIG};"></div><div class="component-text"><strong>Integrity</strong> — alter the message and the signature stops verifying</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${SIG};"></div><div class="component-text"><strong>Non-repudiation</strong> — you can't later deny you authorized it</div></div>
+    </div>
+    <div class="role-line">The magic: you prove ownership <strong style="color:#d9a300;">without ever revealing your private key</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- SIGN row -->
+      <text x="60" y="40" font-size="11" font-weight="700" fill="#d9a300">SIGN</text>
+      <rect x="40" y="52" width="92" height="40" rx="7" fill="#f4f4f4" stroke="#ddd" stroke-width="1.3"/>
+      <text x="86" y="76" text-anchor="middle" font-size="11" fill="#555">transaction</text>
+      <text x="148" y="77" text-anchor="middle" font-size="16" fill="#ccc">+</text>
+      <rect x="162" y="52" width="78" height="40" rx="7" fill="${NEG}" opacity="0.08" stroke="${NEG}" stroke-width="1.3"/>
+      <text x="201" y="70" text-anchor="middle" font-size="10" fill="${NEG}">private</text>
+      <text x="201" y="83" text-anchor="middle" font-size="10" fill="${NEG}">key</text>
+      <line x1="248" y1="72" x2="280" y2="72" stroke="${SIG}" stroke-width="1.8" opacity="0.6"/>
+      <polygon points="280,67 280,77 290,72" fill="${SIG}" opacity="0.7"/>
+      <rect x="296" y="52" width="74" height="40" rx="7" fill="${SIG}" opacity="0.15" stroke="${SIG}" stroke-width="1.4"/>
+      <text x="333" y="76" text-anchor="middle" font-size="11" font-weight="600" fill="#d9a300">signature</text>
+      <!-- divider -->
+      <line x1="40" y1="140" x2="370" y2="140" stroke="#eee" stroke-width="1"/>
+      <!-- VERIFY row -->
+      <text x="60" y="180" font-size="11" font-weight="700" fill="${KEY}">VERIFY</text>
+      <rect x="40" y="194" width="80" height="40" rx="7" fill="${SIG}" opacity="0.12" stroke="${SIG}" stroke-width="1.3"/>
+      <text x="80" y="218" text-anchor="middle" font-size="11" fill="#d9a300">signature</text>
+      <text x="132" y="219" text-anchor="middle" font-size="16" fill="#ccc">+</text>
+      <rect x="146" y="194" width="74" height="40" rx="7" fill="${KEY}" opacity="0.12" stroke="${KEY}" stroke-width="1.3"/>
+      <text x="183" y="212" text-anchor="middle" font-size="10" fill="#2f9e44">public</text>
+      <text x="183" y="225" text-anchor="middle" font-size="10" fill="#2f9e44">key</text>
+      <line x1="228" y1="214" x2="260" y2="214" stroke="${KEY}" stroke-width="1.8" opacity="0.6"/>
+      <polygon points="260,209 260,219 270,214" fill="${KEY}" opacity="0.7"/>
+      <circle cx="318" cy="214" r="26" fill="${KEY}" opacity="0.12" stroke="${KEY}" stroke-width="1.6"/>
+      <path d="M 306 214 l 8 8 l 16 -18" stroke="${KEY}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="318" y="262" text-anchor="middle" font-size="10" font-weight="600" fill="#2f9e44">valid ✓</text>
+      <text x="205" y="320" text-anchor="middle" font-size="11" fill="#999">the private key never leaves your wallet</text>
+    </svg>
+  </div>
+</div>`,
+
+// ── 8: THE DOUBLE-SPEND PROBLEM ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${NEG};">The Problem It All Solves</div>
+    <div class="title">The <span style="color:${NEG};">Double-Spend</span><br>Problem</div>
+    <div class="subtitle" style="margin-top:12px;">Digital money is just data — and data can be copied. So what stops you spending the <em>same</em> coin twice?</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Banks solve it</strong> by being a single trusted ledger — one authority decides</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text">With <strong>no central authority</strong>, that referee is gone — this was the hard problem</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${KEY};"></div><div class="component-text"><strong>Signatures</strong> prove the coin is yours to spend</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${HASH};"></div><div class="component-text">The <strong>ordered, immutable ledger</strong> records the first spend — a second one is rejected as already-spent</div></div>
+    </div>
+    <div class="role-line">All four primitives, working together — the network agrees on <strong style="color:#1a1a1a;">one ordered history</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- the coin -->
+      <circle cx="190" cy="50" r="24" fill="${SIG}" opacity="0.18" stroke="${SIG}" stroke-width="1.8"/>
+      <text x="190" y="57" text-anchor="middle" font-size="18" font-weight="700" fill="#d9a300">¢</text>
+      <text x="190" y="92" text-anchor="middle" font-size="10" fill="#999">one coin · spent twice?</text>
+      <!-- ledger arbiter -->
+      <rect x="120" y="150" width="140" height="46" rx="9" fill="${HASH}" opacity="0.1" stroke="${HASH}" stroke-width="1.6"/>
+      <text x="190" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="${HASH}">SHARED LEDGER</text>
+      <text x="190" y="186" text-anchor="middle" font-size="9.5" fill="#888">orders every transaction</text>
+      <line x1="178" y1="76" x2="150" y2="150" stroke="#ccc" stroke-width="1.4"/>
+      <line x1="202" y1="76" x2="230" y2="150" stroke="#ccc" stroke-width="1.4"/>
+      <!-- accepted -->
+      <line x1="150" y1="196" x2="95" y2="262" stroke="${KEY}" stroke-width="2" opacity="0.6"/>
+      <circle cx="80" cy="285" r="26" fill="${KEY}" opacity="0.12" stroke="${KEY}" stroke-width="1.6"/>
+      <path d="M 68 285 l 8 8 l 16 -18" stroke="${KEY}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="80" y="332" text-anchor="middle" font-size="10" font-weight="600" fill="#2f9e44">first spend</text>
+      <text x="80" y="346" text-anchor="middle" font-size="10" font-weight="600" fill="#2f9e44">recorded ✓</text>
+      <!-- rejected -->
+      <line x1="230" y1="196" x2="285" y2="262" stroke="${NEG}" stroke-width="2" opacity="0.6" stroke-dasharray="5 4"/>
+      <circle cx="300" cy="285" r="26" fill="${NEG}" opacity="0.1" stroke="${NEG}" stroke-width="1.6"/>
+      <line x1="290" y1="275" x2="310" y2="295" stroke="${NEG}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="310" y1="275" x2="290" y2="295" stroke="${NEG}" stroke-width="3" stroke-linecap="round"/>
+      <text x="300" y="332" text-anchor="middle" font-size="10" font-weight="600" fill="${NEG}">second spend</text>
+      <text x="300" y="346" text-anchor="middle" font-size="10" font-weight="600" fill="${NEG}">rejected ✕</text>
+    </svg>
+  </div>
+</div>`,
+
+// ── 9: WHERE THIS GOES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">Where This Goes</div>
+    <div class="title">One Question<br><span class="accent">Remains</span></div>
+    <div class="subtitle" style="margin-top:12px;">We can fingerprint data, chain it, prove ownership, and reject a double-spend. But one thing is still unanswered: <strong style="color:#1a1a1a;">who decides which transactions get into the ledger — and in what order?</strong></div>
+    <div class="roadmap">
+      <div class="roadmap-row"><div class="roadmap-badge">Week 4</div><div class="roadmap-text"><strong>Consensus</strong> — how thousands of strangers agree on one history (Proof of Work, Proof of Stake)</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 5</div><div class="roadmap-text"><strong>Smart contracts &amp; tokens</strong> — programmable money built on these primitives</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 6</div><div class="roadmap-text"><strong>dApps &amp; the Web3 stack</strong> — assembling the full picture</div></div>
+    </div>
+    <div class="closer">"You've seen the machinery. Next: how a leaderless network agrees on one shared truth — without a boss."</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 380" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // recap chips of the 4 primitives, then a path to consensus
+        const done = [
+          {x:70,  y:60,  c:HASH, l:'hashing'},
+          {x:150, y:60,  c:HASH, l:'chaining'},
+          {x:230, y:60,  c:KEY,  l:'keys'},
+          {x:310, y:60,  c:SIG,  l:'signatures'},
+        ];
+        done.forEach(d => {
+          out += '<circle cx="'+d.x+'" cy="'+d.y+'" r="15" fill="'+d.c+'" opacity="0.14" stroke="'+d.c+'" stroke-width="1.5"/>';
+          out += '<path d="M '+(d.x-6)+' '+d.y+' l 4 4 l 8 -9" stroke="'+d.c+'" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+          out += '<text x="'+d.x+'" y="'+(d.y+30)+'" text-anchor="middle" font-size="9" fill="#999">'+d.l+'</text>';
+        });
+        out += '<text x="190" y="118" text-anchor="middle" font-size="11" font-weight="600" fill="#bbb">✓ this week</text>';
+        // path upward to the open question
+        const stops = [
+          {x:90,  y:300, c:HASH, l:'4'},
+          {x:190, y:230, c:KEY,  l:'5'},
+          {x:290, y:160, c:SIG,  l:'6'},
+        ];
+        let dpath = 'M '+stops[0].x+' '+stops[0].y;
+        stops.forEach(s => dpath += ' L '+s.x+' '+s.y);
+        out += '<path d="'+dpath+'" stroke="#e8e8e8" stroke-width="2" fill="none"/>';
+        stops.forEach(s => {
+          out += '<circle cx="'+s.x+'" cy="'+s.y+'" r="18" fill="'+s.c+'" opacity="0.12" stroke="'+s.c+'" stroke-width="1.6"/>';
+          out += '<text x="'+s.x+'" y="'+(s.y+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="'+s.c+'">'+s.l+'</text>';
+        });
+        out += '<text x="90"  y="332" text-anchor="middle" font-size="9" fill="#999">consensus</text>';
+        out += '<text x="190" y="262" text-anchor="middle" font-size="9" fill="#999">contracts</text>';
+        out += '<text x="290" y="192" text-anchor="middle" font-size="9" fill="#999">dApps</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+];
+
+// ============ RENDER ============
+const deck = document.getElementById('deck');
+const dots = document.getElementById('dots');
+
+document.getElementById('logoFooterImg').src = PAU_LOGO;
+document.getElementById('logoFooter').style.display = 'none';
+
+slides.forEach((html, i) => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  const slide = wrapper.firstElementChild;
+  slide.classList.toggle('active', i === 0);
+  slide.id = 'sl' + i;
+  deck.appendChild(slide);
+
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => go(i);
+  dots.appendChild(dot);
+});
+
+function go(i) {
+  if (i < 0 || i >= TOTAL || i === cur) return;
+  document.getElementById('sl' + cur).classList.remove('active');
+  cur = i;
+  document.getElementById('sl' + cur).classList.add('active');
+  document.getElementById('logoFooter').style.display = (cur === 0) ? 'none' : 'block';
+  document.querySelectorAll('.nav-dot').forEach((d,j) => d.classList.toggle('active', j === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + TOTAL;
+  document.getElementById('courseTag').textContent = 'Week 3 · ' + (cur+1) + '/' + TOTAL;
+}
+
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.tagName === 'SELECT')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => { let d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) d < 0 ? next() : prev(); });
+
+// ============ HASH PLAYGROUND ============
+// Self-contained. SHA via Web Crypto; Keccak-256 inlined below; Base64/ROT13 native JS.
+
+/* --- Keccak-256 (compact, public-domain style implementation) --- */
+const keccak256 = (function () {
+  const RC = [
+    0x0000000000000001n,0x0000000000008082n,0x800000000000808an,0x8000000080008000n,
+    0x000000000000808bn,0x0000000080000001n,0x8000000080008081n,0x8000000000008009n,
+    0x000000000000008an,0x0000000000000088n,0x0000000080008009n,0x000000008000000an,
+    0x000000008000808bn,0x800000000000008bn,0x8000000000008089n,0x8000000000008003n,
+    0x8000000000008002n,0x8000000000000080n,0x000000000000800an,0x800000008000000an,
+    0x8000000080008081n,0x8000000000008080n,0x0000000080000001n,0x8000000080008008n
+  ];
+  const R = [0,1,62,28,27, 36,44,6,55,20, 3,10,43,25,39, 41,45,15,21,8, 18,2,61,56,14];
+  const M = (1n << 64n) - 1n;
+  const rotl = (x, n) => ((x << n) | (x >> (64n - n))) & M;
+
+  function keccakf(A) {
+    for (let round = 0; round < 24; round++) {
+      const C = new Array(5);
+      for (let x = 0; x < 5; x++) C[x] = A[x] ^ A[x+5] ^ A[x+10] ^ A[x+15] ^ A[x+20];
+      const D = new Array(5);
+      for (let x = 0; x < 5; x++) D[x] = C[(x+4)%5] ^ rotl(C[(x+1)%5], 1n);
+      for (let x = 0; x < 5; x++) for (let y = 0; y < 25; y += 5) A[x+y] ^= D[x];
+      const B = new Array(25);
+      for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) {
+        B[y + ((2*x + 3*y) % 5) * 5] = rotl(A[x + 5*y], BigInt(R[x + 5*y]));
+      }
+      for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) {
+        A[x + 5*y] = B[x + 5*y] ^ ((~B[(x+1)%5 + 5*y] & M) & B[(x+2)%5 + 5*y]);
+      }
+      A[0] ^= RC[round];
+    }
+  }
+
+  function utf8(str) {
+    const b = [];
+    for (let i = 0; i < str.length; i++) {
+      let c = str.charCodeAt(i);
+      if (c < 0x80) b.push(c);
+      else if (c < 0x800) b.push(0xc0|(c>>6),0x80|(c&0x3f));
+      else if (c < 0xd800 || c >= 0xe000) b.push(0xe0|(c>>12),0x80|((c>>6)&0x3f),0x80|(c&0x3f));
+      else { i++; c = 0x10000 + (((c&0x3ff)<<10)|(str.charCodeAt(i)&0x3ff)); b.push(0xf0|(c>>18),0x80|((c>>12)&0x3f),0x80|((c>>6)&0x3f),0x80|(c&0x3f)); }
+    }
+    return b;
+  }
+
+  return function (str) {
+    const rate = 136;
+    const padded = utf8(str);
+    padded.push(0x01);
+    while (padded.length % rate !== 0) padded.push(0x00);
+    padded[padded.length - 1] |= 0x80;
+    const A = new Array(25).fill(0n);
+    for (let p = 0; p < padded.length; p += rate) {
+      for (let i = 0; i < rate; i += 8) {
+        let lane = 0n;
+        for (let k = 0; k < 8; k++) lane |= BigInt(padded[p+i+k]) << BigInt(8*k);
+        A[i/8] ^= lane;
+      }
+      keccakf(A);
+    }
+    let hex = '';
+    for (let i = 0; i < 4; i++) {
+      let lane = A[i];
+      for (let k = 0; k < 8; k++) hex += Number((lane >> BigInt(8*k)) & 0xffn).toString(16).padStart(2,'0');
+    }
+    return hex;
+  };
+})();
+
+/* --- reversible encodings --- */
+function toBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function fromBase64(str) { try { return decodeURIComponent(escape(atob(str))); } catch (e) { return null; } }
+function rot13(str) {
+  return str.replace(/[a-zA-Z]/g, c => {
+    const base = c <= 'Z' ? 65 : 97;
+    return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+  });
+}
+
+/* --- SHA via Web Crypto --- */
+async function sha(algo, str) {
+  const data = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest(algo, data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* --- wire the UI --- */
+(function initPlayground() {
+  const $ = id => document.getElementById(id);
+  const input = $('pgInput'), func = $('pgFunc'), gen = $('pgGen'), rev = $('pgRev');
+  const out = $('pgOut'), tag = $('pgTag'), status = $('pgStatus'), statusText = $('pgStatusText');
+  if (!input) return;
+
+  let lastOutput = '';     // what's currently shown in the output box
+  let lastFuncOfOutput = ''; // which function produced it
+
+  function isReversible() {
+    return func.selectedOptions[0].dataset.rev === '1';
+  }
+
+  function refreshTag() {
+    if (isReversible()) {
+      tag.textContent = 'REVERSIBLE';
+      tag.className = 'pg-tag rev';
+      rev.disabled = false;
+    } else {
+      tag.textContent = 'ONE-WAY';
+      tag.className = 'pg-tag oneway';
+      rev.disabled = false; // keep enabled so pressing it teaches the lesson
+    }
+  }
+
+  function setStatus(kind, mark, text) {
+    status.className = 'pg-status ' + kind;
+    statusText.innerHTML = text;
+    status.querySelector('.pg-mark').textContent = mark;
+  }
+
+  async function generate() {
+    const val = input.value;
+    const f = func.value;
+    let result;
+    if (f === 'sha256') result = await sha('SHA-256', val);
+    else if (f === 'sha512') result = await sha('SHA-512', val);
+    else if (f === 'keccak256') result = keccak256(val);
+    else if (f === 'base64') result = toBase64(val);
+    else if (f === 'rot13') result = rot13(val);
+
+    lastOutput = result;
+    lastFuncOfOutput = f;
+    out.classList.remove('empty');
+    out.textContent = result;
+
+    if (isReversible()) {
+      setStatus('ok', '✓', 'This is an <strong>encoding</strong> — the original is still in there. Press <strong>Reverse</strong> to get it back.');
+    } else {
+      const bits = f === 'sha512' ? 512 : 256;
+      setStatus('ok', '✓', 'Generated a <strong>' + bits + '-bit fingerprint</strong>. The input can no longer be recovered from it.');
+    }
+  }
+
+  function reverse() {
+    if (!lastOutput) {
+      setStatus('neutral', '›', 'Generate something first, then try to reverse it.');
+      return;
+    }
+    if (lastFuncOfOutput === 'base64') {
+      const back = fromBase64(lastOutput);
+      out.textContent = back === null ? '(invalid)' : back;
+      setStatus('ok', '✓', 'Reversed. Base64 is just a re-encoding, so the original text comes straight back.');
+    } else if (lastFuncOfOutput === 'rot13') {
+      out.textContent = rot13(lastOutput); // ROT13 is its own inverse
+      setStatus('ok', '✓', 'Reversed. ROT13 is its own inverse — apply it twice and you\'re home.');
+    } else {
+      // a real hash
+      setStatus('fail', '✗', '<strong>Can\'t be reversed — that\'s the whole point.</strong> A hash throws information away; no function can rebuild the input from the digest.');
+    }
+  }
+
+  gen.addEventListener('click', generate);
+  rev.addEventListener('click', reverse);
+  func.addEventListener('change', () => {
+    refreshTag();
+    out.classList.add('empty');
+    out.textContent = '— press Generate —';
+    lastOutput = '';
+    setStatus('neutral', '›', isReversible()
+      ? 'An <strong>encoding</strong>: reversible by design. Generate, then reverse.'
+      : 'A <strong>hash</strong>: one-way by design. Generate, then try to reverse.');
+  });
+  // live avalanche: regenerate as you type, if an output is already showing
+  input.addEventListener('input', () => { if (lastOutput) generate(); });
+
+  refreshTag();
+})();
+
+</script>
+</body>
+</html>
