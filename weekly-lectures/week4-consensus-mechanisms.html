@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consensus Mechanisms</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #fff;
+  color: #1a1a1a;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.deck { width: 100vw; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: none;
+  padding: 64px 80px 80px 80px;
+}
+
+.slide.active { display: flex; }
+
+/* ===== LAYOUTS ===== */
+.layout-center { flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.layout-split { flex-direction: row; align-items: center; }
+.layout-split .text-side { flex: 1; padding-right: 64px; display: flex; flex-direction: column; justify-content: center; }
+.layout-split .visual-side { flex: 1; display: flex; align-items: center; justify-content: center; }
+.layout-top { flex-direction: column; justify-content: flex-start; padding-top: 72px; }
+
+/* ===== TYPOGRAPHY ===== */
+.title { font-weight: 700; font-size: 52px; line-height: 1.15; letter-spacing: -0.02em; color: #1a1a1a; }
+.title-large { font-size: 64px; }
+.subtitle { font-weight: 400; font-size: 20px; line-height: 1.65; color: #5f5f5f; margin-top: 20px; max-width: 560px; }
+.label { font-weight: 600; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: #1a73e8; margin-bottom: 16px; }
+.era-dates { font-weight: 500; font-size: 15px; color: #999; margin-top: 4px; margin-bottom: 4px; }
+.accent { color: #1a73e8; }
+
+/* ===== COMPONENT LIST ===== */
+.components { margin-top: 28px; display: flex; flex-direction: column; gap: 13px; max-width: 520px; }
+.component-row { display: flex; align-items: flex-start; gap: 14px; }
+.component-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 9px; flex-shrink: 0; }
+.component-text { font-size: 16.5px; line-height: 1.5; color: #444; }
+.component-text strong { color: #1a1a1a; font-weight: 600; }
+.role-line { margin-top: 26px; font-size: 16px; color: #1a1a1a; }
+.role-line strong { font-weight: 700; }
+
+/* ===== HOOK ===== */
+.hook-flow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
+.hook-word { font-size: 28px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.01em; }
+.hook-arrow { color: #1a73e8; font-size: 22px; font-weight: 400; }
+
+/* ===== DEFINITION CALLOUT ===== */
+.definition { margin-top: 24px; padding: 22px 26px; background: #e8f0fe; border-left: 4px solid #1a73e8; border-radius: 8px; max-width: 540px; }
+.definition .def-term { font-weight: 700; font-size: 17px; color: #1a73e8; margin-bottom: 6px; }
+.definition .def-body { font-size: 17px; line-height: 1.55; color: #333; }
+.definition .def-body strong { color: #1a1a1a; font-weight: 600; }
+
+/* ===== TABLE ===== */
+.cmp-table { margin-top: 32px; width: 100%; max-width: 960px; border-collapse: collapse; }
+.cmp-table th { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #999; padding: 0 18px 14px 18px; border-bottom: 1px solid #eee; }
+.cmp-table td { font-size: 15.5px; color: #444; padding: 15px 18px; border-bottom: 1px solid #f2f2f2; vertical-align: top; }
+.cmp-table tr td:first-child { font-weight: 700; color: #1a1a1a; }
+.type-tag { display: inline-flex; align-items: center; gap: 8px; }
+.type-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ===== ROADMAP ===== */
+.roadmap { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; }
+.roadmap-row { display: flex; align-items: flex-start; gap: 16px; }
+.roadmap-badge { padding: 5px 12px; border-radius: 8px; background: #e8f0fe; color: #1a73e8; font-weight: 600; font-size: 12.5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.roadmap-text { font-size: 16.5px; line-height: 1.55; color: #444; }
+.roadmap-text strong { color: #1a1a1a; font-weight: 600; }
+.closer { margin-top: 34px; padding-top: 24px; border-top: 1px solid #eee; font-size: 19px; font-weight: 500; color: #1a1a1a; font-style: italic; max-width: 600px; line-height: 1.5; }
+
+/* ===== NAV ===== */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; height: 52px; background: #fff; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; z-index: 100; }
+.nav-counter { font-size: 13px; font-weight: 500; color: #999; }
+.nav-dots { display: flex; gap: 6px; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: #ddd; cursor: pointer; transition: background 0.2s, width 0.2s; }
+.nav-dot.active { background: #1a73e8; width: 20px; border-radius: 3px; }
+.nav-btns { display: flex; gap: 4px; }
+.nav-btn { width: 36px; height: 36px; border: 1px solid #eee; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #666; display: flex; align-items: center; justify-content: center; }
+.nav-btn:hover { background: #f8f8f8; color: #1a1a1a; }
+
+svg text { font-family: 'Outfit', sans-serif; }
+
+.course-tag { position: fixed; top: 26px; right: 32px; z-index: 101; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ccc; }
+
+/* ===== LOGO ===== */
+.logo-footer { position: fixed; top: 22px; left: 32px; z-index: 101; opacity: 0.55; }
+.logo-footer img { height: 26px; width: auto; }
+.title-logo { margin-bottom: 36px; }
+.title-logo img { height: 54px; width: auto; }
+
+/* ===== MINING ACTIVITY ===== */
+.mine {
+  margin-top: 22px;
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mine-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.mine-input {
+  width: 100%;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  padding: 12px 14px;
+  border: 1.5px solid #e3e3e3;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.mine-input:focus { border-color: #1a73e8; background: #fff; }
+
+.diff-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.diff-seg { display: inline-flex; border: 1.5px solid #e3e3e3; border-radius: 10px; overflow: hidden; }
+.diff-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px; font-weight: 600;
+  padding: 10px 16px;
+  background: #fff; color: #666;
+  border: none; cursor: pointer;
+  border-right: 1px solid #eee;
+  transition: background 0.12s, color 0.12s;
+}
+.diff-btn:last-child { border-right: none; }
+.diff-btn.active { background: #1a73e8; color: #fff; }
+.diff-hint { font-size: 13px; color: #999; }
+
+.mine-target {
+  font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 14px;
+  color: #666;
+}
+.mine-target b { color: #1a73e8; }
+
+.hash-box {
+  font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  word-break: break-all;
+  padding: 16px;
+  background: #f4f7fc;
+  border: 1.5px solid #e3ebf8;
+  border-radius: 10px;
+  color: #444;
+  min-height: 56px;
+  line-height: 1.45;
+}
+.hash-box .zeros { color: #2f9e44; font-weight: 700; }
+.hash-box.win { background: #eafbef; border-color: #b8ecc6; }
+
+.mine-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+.mine-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14.5px; font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 10px; border: none; cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+}
+.mine-btn:hover { filter: brightness(0.94); }
+.mine-btn.go { background: #1a73e8; color: #fff; }
+.mine-btn.stop { background: #fff; color: #e05555; border: 1.5px solid #e05555; }
+.mine-btn.reset { background: #fff; color: #666; border: 1.5px solid #ddd; }
+.mine-btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+.mine-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat {
+  flex: 1; min-width: 120px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f6f6f6;
+}
+.stat .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #999; }
+.stat .stat-val { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.stat.find .stat-val { color: #1a73e8; }
+.stat.verify { background: #eafbef; }
+.stat.verify .stat-val { color: #2f9e44; }
+
+.mine-status {
+  font-size: 14.5px; line-height: 1.5;
+  padding: 12px 16px; border-radius: 10px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.mine-status.neutral { background: #f6f6f6; color: #666; }
+.mine-status.working { background: #fff6e5; color: #b8860b; }
+.mine-status.won { background: #eafbef; color: #2f7d3f; }
+.mine-status .m-mark { font-weight: 700; flex-shrink: 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .slide { padding: 48px 32px 72px 32px; }
+  .layout-split { flex-direction: column; }
+  .layout-split .text-side { padding-right: 0; padding-bottom: 24px; }
+  .title { font-size: 34px; }
+  .title-large { font-size: 40px; }
+  .cmp-table td, .cmp-table th { padding: 10px 8px; font-size: 13px; }
+  .hook-word { font-size: 20px; }
+  .mine { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck"></div>
+
+<div class="logo-footer" id="logoFooter">
+  <img id="logoFooterImg" alt="Pan-Atlantic University" />
+</div>
+
+<div class="course-tag" id="courseTag">Week 4</div>
+
+<div class="nav">
+  <div class="nav-counter" id="counter">1 / 9</div>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prev()">←</button>
+    <button class="nav-btn" onclick="next()">→</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 9;
+let cur = 0;
+const PAU_LOGO = "data:image/jpeg;base64,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";
+
+const POW  = '#1a73e8'; /* blue  — proof of work */
+const POS  = '#51CF66'; /* green — proof of stake */
+const GOLD = '#FCC419'; /* reward */
+const NEG  = '#e05555'; /* risk / attack / energy */
+
+const slides = [
+
+// ── 1: TITLE ──
+`<div class="slide layout-center">
+  <div class="title-logo"><img src="${PAU_LOGO}" alt="Pan-Atlantic University" /></div>
+  <div class="label">Blockchain &amp; Mobile Technology · Week 4</div>
+  <div class="title title-large">Consensus<br>Mechanisms</div>
+  <div class="subtitle" style="text-align:center;margin-top:24px;">How a leaderless network agrees on one shared history.</div>
+  <div style="margin-top:44px;">
+    <svg viewBox="0 0 420 150" width="420" height="150" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // ring of nodes all agreeing on one central block
+        out += '<rect x="186" y="58" width="48" height="36" rx="6" fill="'+POW+'" opacity="0.14" stroke="'+POW+'" stroke-width="1.6"/>';
+        out += '<text x="210" y="81" text-anchor="middle" font-size="10" font-weight="700" fill="'+POW+'">BLOCK</text>';
+        const n = 7;
+        for (let i=0;i<n;i++){
+          const a = (i/n)*6.28 - 1.57;
+          const x = 210+Math.cos(a)*120, y = 76+Math.sin(a)*58;
+          out += '<line x1="210" y1="76" x2="'+x+'" y2="'+y+'" stroke="'+POW+'" stroke-width="1.2" opacity="0.25"/>';
+          out += '<circle cx="'+x+'" cy="'+y+'" r="13" fill="#f4f4f4" stroke="'+POW+'" stroke-width="1.3"/>';
+          out += '<path d="M '+(x-5)+' '+y+' l 3.5 3.5 l 7 -8" stroke="'+POS+'" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+        }
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 2: THE PROBLEM ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${NEG};">The Open Question</div>
+    <div class="title">Who Gets to<br>Write the <span style="color:${NEG};">Next<br>Block?</span></div>
+    <div class="subtitle" style="margin-top:14px;">Last week we could fingerprint data, chain it, and sign it. But in a network with <strong style="color:#1a1a1a;">no boss</strong> and thousands of strangers, who decides which transactions go in — and in what order?</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>No central authority</strong> to pick the next block</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Anyone can propose</strong> — including liars and faulty nodes</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Network delay</strong> — nodes can see events in different orders</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Sybil attacks</strong> — one person can fake thousands of identities</div></div>
+    </div>
+    <div class="role-line">The classic <strong style="color:#1a1a1a;">Byzantine Generals Problem</strong>: reaching agreement when some participants may betray you.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // several nodes each proposing a different candidate block, big "?"
+        const cands = [
+          {x:70,  y:70,  l:'A', c:POW},
+          {x:300, y:80,  l:'B', c:POS},
+          {x:60,  y:250, l:'C', c:GOLD},
+          {x:310, y:260, l:'D', c:NEG},
+        ];
+        cands.forEach(p => {
+          out += '<rect x="'+(p.x-30)+'" y="'+(p.y-22)+'" width="60" height="44" rx="6" fill="'+p.c+'" opacity="0.1" stroke="'+p.c+'" stroke-width="1.5"/>';
+          out += '<text x="'+p.x+'" y="'+(p.y+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="'+p.c+'">'+p.l+'</text>';
+          out += '<line x1="'+p.x+'" y1="'+p.y+'" x2="190" y2="165" stroke="#ddd" stroke-width="1.4" stroke-dasharray="4 4"/>';
+        });
+        out += '<circle cx="190" cy="165" r="40" fill="#f6f6f6" stroke="#ccc" stroke-width="1.6"/>';
+        out += '<text x="190" y="180" text-anchor="middle" font-size="42" font-weight="700" fill="#bbb">?</text>';
+        out += '<text x="190" y="335" text-anchor="middle" font-size="12" fill="#999">four candidate blocks — which becomes truth?</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 3: WHAT CONSENSUS MEANS ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">The Idea</div>
+    <div class="title">Agreement<br>by <span class="accent">Rules</span>,<br>Not Authority</div>
+    <div class="definition">
+      <div class="def-term">Consensus mechanism</div>
+      <div class="def-body">The shared <strong>rulebook</strong> that lets independent nodes agree on one valid history — <strong>without trusting each other</strong> and without a referee.</div>
+    </div>
+    <div class="components" style="margin-top:20px;">
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text">Every node checks proposals against the <strong>same rules</strong></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text">The chain the network keeps extending <strong>becomes the truth</strong></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text">Cheating is not forbidden — it is made <strong>expensive and unprofitable</strong></div></div>
+    </div>
+    <div class="role-line">Two dominant approaches make cheating costly in two different ways: <strong style="color:${POW};">Work</strong> and <strong style="color:${POS};">Stake</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // many candidate chains -> one canonical emerges
+        // canonical chain (bold)
+        const main = [40, 110, 180, 250, 320];
+        main.forEach((x,i) => {
+          out += '<rect x="'+(x-22)+'" y="150" width="44" height="34" rx="6" fill="'+POW+'" opacity="0.12" stroke="'+POW+'" stroke-width="1.7"/>';
+          if (i < main.length-1) out += '<line x1="'+(x+22)+'" y1="167" x2="'+(main[i+1]-22)+'" y2="167" stroke="'+POW+'" stroke-width="2.2" opacity="0.6"/>';
+        });
+        out += '<text x="180" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="'+POW+'">THE CANONICAL CHAIN</text>';
+        // orphaned alternative branches (faded)
+        out += '<rect x="228" y="60" width="44" height="30" rx="6" fill="#ccc" opacity="0.2" stroke="#bbb" stroke-width="1.3"/>';
+        out += '<line x1="250" y1="150" x2="250" y2="90" stroke="#ccc" stroke-width="1.4" stroke-dasharray="3 3"/>';
+        out += '<text x="295" y="80" font-size="14" fill="'+NEG+'" opacity="0.6">✗</text>';
+        out += '<rect x="228" y="250" width="44" height="30" rx="6" fill="#ccc" opacity="0.2" stroke="#bbb" stroke-width="1.3"/>';
+        out += '<line x1="250" y1="184" x2="250" y2="250" stroke="#ccc" stroke-width="1.4" stroke-dasharray="3 3"/>';
+        out += '<text x="295" y="272" font-size="14" fill="'+NEG+'" opacity="0.6">✗</text>';
+        out += '<text x="180" y="325" text-anchor="middle" font-size="11" fill="#999">competing branches are discarded; one history survives</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 4: PROOF OF WORK ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${POW};">Approach One · 2009</div>
+    <div class="title">Proof of <span style="color:${POW};">Work</span></div>
+    <div class="subtitle" style="margin-top:12px;">Miners <strong style="color:#1a1a1a;">compete</strong> to find a number (a "nonce") that makes the block's hash start with enough zeros. Brutally hard to find — instant to check.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text">Try nonce after nonce until <strong>hash(block + nonce)</strong> meets the target</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${GOLD};"></div><div class="component-text">First to solve <strong>broadcasts the block</strong> and earns the reward</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text"><strong>Difficulty auto-adjusts</strong> to keep block times steady (~10 min in Bitcoin)</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text">To rewrite history you must <strong>out-compute the whole network</strong> — a 51% attack</div></div>
+    </div>
+    <div class="role-line">Security comes from <strong style="color:${POW};">burned electricity</strong>: lying costs more than it pays.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        out += '<rect x="60" y="40" width="260" height="56" rx="8" fill="#f4f4f4" stroke="#ddd" stroke-width="1.3"/>';
+        out += '<text x="190" y="64" text-anchor="middle" font-size="12" fill="#555">hash( block data + </text>';
+        out += '<text x="190" y="82" text-anchor="middle" font-size="12" font-weight="700" fill="'+POW+'">nonce = ??? )</text>';
+        out += '<line x1="190" y1="96" x2="190" y2="124" stroke="'+POW+'" stroke-width="1.5" opacity="0.5"/>';
+        out += '<polygon points="186,124 194,124 190,132" fill="'+POW+'" opacity="0.5"/>';
+        // target test
+        out += '<rect x="60" y="138" width="260" height="44" rx="8" fill="'+POW+'" opacity="0.08" stroke="'+POW+'" stroke-width="1.4"/>';
+        out += '<text x="190" y="165" text-anchor="middle" font-size="13" fill="'+POW+'" font-family="monospace">starts with 0000… ?</text>';
+        // branch: no -> retry, yes -> win
+        out += '<text x="105" y="215" text-anchor="middle" font-size="12" font-weight="600" fill="'+NEG+'">✗ no</text>';
+        out += '<text x="105" y="233" text-anchor="middle" font-size="10" fill="#999">nonce + 1, retry</text>';
+        out += '<path d="M 120 200 q -55 20 -5 -55" stroke="'+NEG+'" stroke-width="1.4" fill="none" opacity="0.45"/>';
+        out += '<text x="275" y="215" text-anchor="middle" font-size="12" font-weight="600" fill="'+POS+'">✓ yes</text>';
+        // reward
+        out += '<circle cx="190" cy="280" r="30" fill="'+GOLD+'" opacity="0.18" stroke="'+GOLD+'" stroke-width="1.8"/>';
+        out += '<text x="190" y="288" text-anchor="middle" font-size="22" font-weight="700" fill="#d9a300">⛏</text>';
+        out += '<text x="190" y="332" text-anchor="middle" font-size="11" fill="#999">solve it → propose the block → earn the reward</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 5: ACTIVITY — MINE A BLOCK ──
+`<div class="slide layout-split">
+  <div class="text-side" style="padding-right:48px;">
+    <div class="label" style="color:${POW};">Try It · Live</div>
+    <div class="title" style="font-size:44px;">Mine a <span style="color:${POW};">Block</span></div>
+    <div class="subtitle" style="margin-top:12px;font-size:18px;">Pick a difficulty — the number of leading zeros the hash must have — and hit <strong style="color:#1a1a1a;">Mine</strong>. Watch the nonce climb through thousands of tries until one lands below the target.</div>
+    <div class="components" style="margin-top:20px;">
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text">Each extra zero makes mining <strong>~16× harder</strong></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POS};"></div><div class="component-text">However many tries it took to <em>find</em> — verifying takes just <strong>one</strong> hash</div></div>
+    </div>
+    <div class="role-line">That gap — <strong style="color:${POW};">hard to find, easy to check</strong> — is the whole engine of Proof of Work.</div>
+  </div>
+  <div class="visual-side" style="align-items:flex-start;padding-top:6px;">
+    <div class="mine">
+      <div class="mine-field">
+        <label for="mineData">Block data</label>
+        <input id="mineData" class="mine-input" value="Block #42: Alice → Bob, 5 coins" />
+      </div>
+      <div class="mine-field">
+        <label>Difficulty · leading zeros</label>
+        <div class="diff-row">
+          <div class="diff-seg" id="diffSeg">
+            <button class="diff-btn" data-d="1">1</button>
+            <button class="diff-btn active" data-d="2">2</button>
+            <button class="diff-btn" data-d="3">3</button>
+            <button class="diff-btn" data-d="4">4</button>
+            <button class="diff-btn" data-d="5">5</button>
+          </div>
+          <span class="diff-hint" id="diffHint">5 can take a few seconds</span>
+        </div>
+      </div>
+      <div class="mine-target" id="mineTarget">target: hash must start with <b>00</b></div>
+      <div class="hash-box empty" id="hashBox">— press Mine —</div>
+      <div class="mine-stats">
+        <div class="stat find"><div class="stat-label">Attempts to find</div><div class="stat-val" id="statAttempts">0</div></div>
+        <div class="stat verify"><div class="stat-label">Hashes to verify</div><div class="stat-val" id="statVerify">—</div></div>
+      </div>
+      <div class="mine-controls">
+        <button id="mineGo" class="mine-btn go">Mine</button>
+        <button id="mineStop" class="mine-btn stop" disabled>Stop</button>
+        <button id="mineReset" class="mine-btn reset">Reset</button>
+      </div>
+      <div id="mineStatus" class="mine-status neutral"><span class="m-mark">⛏</span><span id="mineStatusText">Choose a difficulty and start mining.</span></div>
+    </div>
+  </div>
+</div>`,
+
+// ── 6: PROOF OF STAKE ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:#2f9e44;">Approach Two · 2022</div>
+    <div class="title">Proof of <span style="color:#2f9e44;">Stake</span></div>
+    <div class="subtitle" style="margin-top:12px;">Instead of burning electricity, validators <strong style="color:#1a1a1a;">lock up collateral</strong>. The protocol picks one to propose the next block — and punishes cheats by taking their stake.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${POS};"></div><div class="component-text">Validators <strong>stake</strong> coins as a security deposit</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POS};"></div><div class="component-text">The protocol <strong>pseudo-randomly selects</strong> who proposes and attests</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text">Cheat or go offline and your stake gets <strong>slashed</strong></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POS};"></div><div class="component-text">No racing, no mining rigs — about <strong>99.9% less energy</strong></div></div>
+    </div>
+    <div class="role-line">Security comes from <strong style="color:#2f9e44;">money at risk</strong>, not electricity. Ethereum switched in "The Merge."</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // validators with staked coins; one selected; one slashed
+        const vals = [
+          {x:80,  y:90,  sel:false, slash:false},
+          {x:200, y:70,  sel:true,  slash:false},
+          {x:310, y:100, sel:false, slash:false},
+          {x:90,  y:230, sel:false, slash:true},
+          {x:290, y:240, sel:false, slash:false},
+        ];
+        vals.forEach(v => {
+          const c = v.slash ? NEG : (v.sel ? GOLD : POS);
+          out += '<circle cx="'+v.x+'" cy="'+v.y+'" r="22" fill="'+c+'" opacity="0.12" stroke="'+c+'" stroke-width="1.6"/>';
+          // stacked coins
+          out += '<ellipse cx="'+v.x+'" cy="'+(v.y+3)+'" rx="10" ry="4" fill="'+c+'" opacity="0.5"/>';
+          out += '<ellipse cx="'+v.x+'" cy="'+(v.y-2)+'" rx="10" ry="4" fill="'+c+'" opacity="0.65"/>';
+          out += '<ellipse cx="'+v.x+'" cy="'+(v.y-7)+'" rx="10" ry="4" fill="'+c+'" opacity="0.8"/>';
+          if (v.sel) { out += '<text x="'+v.x+'" y="'+(v.y-30)+'" text-anchor="middle" font-size="16" fill="#d9a300">★</text>';
+                       out += '<text x="'+v.x+'" y="'+(v.y+42)+'" text-anchor="middle" font-size="9" font-weight="600" fill="#d9a300">proposer</text>'; }
+          if (v.slash){ out += '<line x1="'+(v.x-14)+'" y1="'+(v.y-14)+'" x2="'+(v.x+14)+'" y2="'+(v.y+14)+'" stroke="'+NEG+'" stroke-width="2.4" stroke-linecap="round"/>';
+                        out += '<text x="'+v.x+'" y="'+(v.y+42)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+NEG+'">slashed</text>'; }
+        });
+        out += '<text x="190" y="320" text-anchor="middle" font-size="11" fill="#999">stake to play · misbehave and you lose it</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 7: POW vs POS (comparison) ──
+`<div class="slide layout-top">
+  <div class="label">Head to Head</div>
+  <div class="title">Work vs. Stake</div>
+  <table class="cmp-table">
+    <thead>
+      <tr><th></th><th><span class="type-tag"><span class="type-swatch" style="background:${POW};"></span>Proof of Work</span></th><th><span class="type-tag"><span class="type-swatch" style="background:${POS};"></span>Proof of Stake</span></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Security from</td><td>Computational work (electricity)</td><td>Economic stake (coins at risk)</td></tr>
+      <tr><td>Energy use</td><td>Very high</td><td>Very low (~99.9% less)</td></tr>
+      <tr><td>Hardware</td><td>Specialized rigs (ASICs)</td><td>Ordinary computer</td></tr>
+      <tr><td>To attack</td><td>Acquire &gt;50% of hash power</td><td>Acquire &amp; risk a huge share of stake</td></tr>
+      <tr><td>Examples</td><td>Bitcoin, Litecoin, Dogecoin</td><td>Ethereum, Cardano, Solana</td></tr>
+    </tbody>
+  </table>
+  <div class="subtitle" style="max-width:860px;margin-top:26px;font-size:16px;">And there are <strong style="color:#1a1a1a;">alternatives</strong>: Delegated PoS, Proof of Authority, Proof of History, and BFT-style protocols — most trade some decentralization for far greater speed.</div>
+</div>`,
+
+// ── 8: FORKS & TRADE-OFFS ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${NEG};">Where It Strains</div>
+    <div class="title">Forks &amp; the<br><span style="color:${NEG};">Trade-offs</span></div>
+    <div class="subtitle" style="margin-top:12px;">Sometimes the chain splits. Usually it heals on its own; sometimes the community itself splits.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${POW};"></div><div class="component-text"><strong>Temporary fork</strong> — two valid blocks at once; the network keeps the longer chain and orphans the other</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${POS};"></div><div class="component-text"><strong>Soft fork</strong> — backward-compatible rule change</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text"><strong>Hard fork</strong> — incompatible split into two chains (e.g. ETH / ETC)</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${NEG};"></div><div class="component-text">The <strong>trilemma</strong>: decentralization, security, scalability — you can rarely max all three</div></div>
+    </div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // shared chain then a split: one branch wins (bold), one orphaned (faded)
+        const base = [40, 110, 180];
+        base.forEach((x,i) => {
+          out += '<rect x="'+(x-22)+'" y="163" width="44" height="34" rx="6" fill="'+POW+'" opacity="0.12" stroke="'+POW+'" stroke-width="1.7"/>';
+          if (i < base.length-1) out += '<line x1="'+(x+22)+'" y1="180" x2="'+(base[i+1]-22)+'" y2="180" stroke="'+POW+'" stroke-width="2.2" opacity="0.6"/>';
+        });
+        // winning branch (up-right, bold)
+        const win = [[250,120],[320,90]];
+        out += '<line x1="202" y1="170" x2="228" y2="132" stroke="'+POW+'" stroke-width="2.2" opacity="0.6"/>';
+        win.forEach((p,i) => {
+          out += '<rect x="'+(p[0]-22)+'" y="'+(p[1]-17)+'" width="44" height="34" rx="6" fill="'+POW+'" opacity="0.12" stroke="'+POW+'" stroke-width="1.7"/>';
+          if (i < win.length-1) out += '<line x1="'+(p[0]+22)+'" y1="'+p[1]+'" x2="'+(win[i+1][0]-22)+'" y2="'+win[i+1][1]+'" stroke="'+POW+'" stroke-width="2.2" opacity="0.6"/>';
+        });
+        out += '<text x="320" y="62" text-anchor="middle" font-size="10" font-weight="700" fill="'+POW+'">longest wins</text>';
+        // orphan branch (down-right, faded)
+        out += '<line x1="202" y1="190" x2="228" y2="240" stroke="#ccc" stroke-width="1.8" stroke-dasharray="4 4"/>';
+        out += '<rect x="228" y="225" width="44" height="30" rx="6" fill="#ccc" opacity="0.22" stroke="#bbb" stroke-width="1.4"/>';
+        out += '<text x="300" y="246" font-size="15" fill="'+NEG+'" opacity="0.6">✗</text>';
+        out += '<text x="250" y="285" text-anchor="middle" font-size="10" fill="#999">orphaned</text>';
+        out += '<text x="190" y="330" text-anchor="middle" font-size="11" fill="#999">the chain splits, then the network reconverges</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 9: WHERE THIS GOES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">Where This Goes</div>
+    <div class="title">From Agreement<br>to <span class="accent">Programs</span></div>
+    <div class="subtitle" style="margin-top:12px;">We can now agree on one history without a boss. Next, we make that history <em>do things</em> — money and logic that run themselves.</div>
+    <div class="roadmap">
+      <div class="roadmap-row"><div class="roadmap-badge">Week 5</div><div class="roadmap-text"><strong>Smart contracts &amp; tokens</strong> — programmable money, gas, fungible tokens vs NFTs, DAOs</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 6</div><div class="roadmap-text"><strong>dApps &amp; the Web3 stack</strong> — wallets, oracles, storage, front-end to chain</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 7</div><div class="roadmap-text"><strong>Web4</strong> — the agentic web, where AI agents act on-chain</div></div>
+    </div>
+    <div class="closer">"A leaderless network can now agree on one truth. Next: we give that truth a brain — code that executes itself."</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 380" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const stops = [
+          {x:80,  y:300, c:POW,  l:'5'},
+          {x:190, y:215, c:POS,  l:'6'},
+          {x:300, y:130, c:GOLD, l:'7'},
+        ];
+        let d = 'M '+stops[0].x+' '+stops[0].y;
+        stops.forEach(s => d += ' L '+s.x+' '+s.y);
+        out += '<path d="'+d+'" stroke="#e8e8e8" stroke-width="2" fill="none"/>';
+        stops.forEach(s => {
+          out += '<circle cx="'+s.x+'" cy="'+s.y+'" r="18" fill="'+s.c+'" opacity="0.12" stroke="'+s.c+'" stroke-width="1.6"/>';
+          out += '<text x="'+s.x+'" y="'+(s.y+5)+'" text-anchor="middle" font-size="14" font-weight="700" fill="'+s.c+'">'+s.l+'</text>';
+        });
+        // star at the top horizon
+        out += '<circle cx="330" cy="70" r="24" fill="'+GOLD+'" opacity="0.1"/>';
+        out += '<text x="330" y="79" text-anchor="middle" font-size="24" fill="#d9a300">★</text>';
+        out += '<line x1="312" y1="112" x2="322" y2="96" stroke="'+GOLD+'" stroke-width="2" opacity="0.4"/>';
+        out += '<text x="80"  y="330" text-anchor="middle" font-size="9" fill="#999">contracts</text>';
+        out += '<text x="190" y="245" text-anchor="middle" font-size="9" fill="#999">dApps</text>';
+        out += '<text x="300" y="160" text-anchor="middle" font-size="9" fill="#999">agentic</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+];
+
+// ============ RENDER ============
+const deck = document.getElementById('deck');
+const dots = document.getElementById('dots');
+
+document.getElementById('logoFooterImg').src = PAU_LOGO;
+document.getElementById('logoFooter').style.display = 'none';
+
+slides.forEach((html, i) => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  const slide = wrapper.firstElementChild;
+  slide.classList.toggle('active', i === 0);
+  slide.id = 'sl' + i;
+  deck.appendChild(slide);
+
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => go(i);
+  dots.appendChild(dot);
+});
+
+function go(i) {
+  if (i < 0 || i >= TOTAL || i === cur) return;
+  document.getElementById('sl' + cur).classList.remove('active');
+  cur = i;
+  document.getElementById('sl' + cur).classList.add('active');
+  document.getElementById('logoFooter').style.display = (cur === 0) ? 'none' : 'block';
+  document.querySelectorAll('.nav-dot').forEach((d,j) => d.classList.toggle('active', j === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + TOTAL;
+  document.getElementById('courseTag').textContent = 'Week 4 · ' + (cur+1) + '/' + TOTAL;
+}
+
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.tagName === 'SELECT')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => { let d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) d < 0 ? next() : prev(); });
+
+// ============ SHA-256 (synchronous, for the miner) ============
+const sha256 = (function () {
+  const K = new Uint32Array([
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+  ]);
+  const rotr = (x,n) => (x>>>n)|(x<<(32-n));
+  function utf8(str){
+    const b=[];
+    for(let i=0;i<str.length;i++){
+      let c=str.charCodeAt(i);
+      if(c<0x80)b.push(c);
+      else if(c<0x800)b.push(0xc0|(c>>6),0x80|(c&0x3f));
+      else if(c<0xd800||c>=0xe000)b.push(0xe0|(c>>12),0x80|((c>>6)&0x3f),0x80|(c&0x3f));
+      else{i++;c=0x10000+(((c&0x3ff)<<10)|(str.charCodeAt(i)&0x3ff));b.push(0xf0|(c>>18),0x80|((c>>12)&0x3f),0x80|((c>>6)&0x3f),0x80|(c&0x3f));}
+    }
+    return b;
+  }
+  return function(str){
+    const msg=utf8(str);
+    const bitLen=msg.length*8;
+    msg.push(0x80);
+    while(msg.length%64!==56)msg.push(0);
+    for(let i=0;i<4;i++)msg.push(0);
+    msg.push((bitLen>>>24)&0xff,(bitLen>>>16)&0xff,(bitLen>>>8)&0xff,bitLen&0xff);
+    let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,
+        h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+    const w=new Uint32Array(64);
+    for(let i=0;i<msg.length;i+=64){
+      for(let t=0;t<16;t++)
+        w[t]=(msg[i+t*4]<<24)|(msg[i+t*4+1]<<16)|(msg[i+t*4+2]<<8)|(msg[i+t*4+3]);
+      for(let t=16;t<64;t++){
+        const s0=rotr(w[t-15],7)^rotr(w[t-15],18)^(w[t-15]>>>3);
+        const s1=rotr(w[t-2],17)^rotr(w[t-2],19)^(w[t-2]>>>10);
+        w[t]=(w[t-16]+s0+w[t-7]+s1)|0;
+      }
+      let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+      for(let t=0;t<64;t++){
+        const S1=rotr(e,6)^rotr(e,11)^rotr(e,25);
+        const ch=(e&f)^((~e)&g);
+        const t1=(h+S1+ch+K[t]+w[t])|0;
+        const S0=rotr(a,2)^rotr(a,13)^rotr(a,22);
+        const maj=(a&b)^(a&c)^(b&c);
+        const t2=(S0+maj)|0;
+        h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+      }
+      h0=(h0+a)|0;h1=(h1+b)|0;h2=(h2+c)|0;h3=(h3+d)|0;
+      h4=(h4+e)|0;h5=(h5+f)|0;h6=(h6+g)|0;h7=(h7+h)|0;
+    }
+    const hx=x=>((x>>>0).toString(16).padStart(8,'0'));
+    return hx(h0)+hx(h1)+hx(h2)+hx(h3)+hx(h4)+hx(h5)+hx(h6)+hx(h7);
+  };
+})();
+
+// ============ MINING ACTIVITY ============
+(function initMiner() {
+  const $ = id => document.getElementById(id);
+  const dataIn = $('mineData'), seg = $('diffSeg'), hint = $('diffHint'), target = $('mineTarget');
+  const hashBox = $('hashBox'), go = $('mineGo'), stop = $('mineStop'), reset = $('mineReset');
+  const statAttempts = $('statAttempts'), statVerify = $('statVerify');
+  const status = $('mineStatus'), statusText = $('mineStatusText');
+  if (!dataIn) return;
+
+  let difficulty = 2;
+  let mining = false;
+  let nonce = 0, attempts = 0, startTime = 0;
+
+  const fmt = n => n.toLocaleString('en-US');
+  const prefix = () => '0'.repeat(difficulty);
+
+  function renderHash(hex, won) {
+    const z = prefix().length;
+    let lead = 0;
+    while (lead < hex.length && hex[lead] === '0') lead++;
+    const shown = Math.min(Math.max(lead, z), hex.length);
+    hashBox.classList.remove('empty');
+    hashBox.classList.toggle('win', !!won);
+    hashBox.innerHTML = '<span class="zeros">' + hex.slice(0, shown) + '</span>' + hex.slice(shown);
+  }
+
+  function setStatus(kind, mark, text) {
+    status.className = 'mine-status ' + kind;
+    statusText.innerHTML = text;
+    status.querySelector('.m-mark').textContent = mark;
+  }
+
+  function updateTarget() {
+    target.innerHTML = 'target: hash must start with <b>' + prefix() + '</b>';
+  }
+
+  function resetState(msg) {
+    mining = false;
+    nonce = 0; attempts = 0;
+    go.disabled = false; stop.disabled = true;
+    statAttempts.textContent = '0';
+    statVerify.textContent = '—';
+    hashBox.className = 'hash-box empty';
+    hashBox.textContent = '— press Mine —';
+    setStatus('neutral', '⛏', msg || 'Choose a difficulty and start mining.');
+  }
+
+  function step() {
+    if (!mining) return;
+    const data = dataIn.value;
+    const pre = prefix();
+    const batch = 3000;
+    let lastHash = '';
+    for (let i = 0; i < batch; i++) {
+      const h = sha256(data + nonce);
+      attempts++;
+      lastHash = h;
+      if (h.startsWith(pre)) {
+        mining = false;
+        go.disabled = false; stop.disabled = true;
+        statAttempts.textContent = fmt(attempts);
+        statVerify.textContent = '1';
+        renderHash(h, true);
+        const secs = ((performance.now() - startTime) / 1000);
+        setStatus('won', '✓',
+          '<strong>Block mined!</strong> Found a valid nonce (' + fmt(nonce) + ') after <strong>' +
+          fmt(attempts) + '</strong> tries in ' + secs.toFixed(2) + 's. Anyone can now verify it in <strong>one</strong> hash.');
+        return;
+      }
+      nonce++;
+    }
+    statAttempts.textContent = fmt(attempts);
+    renderHash(lastHash, false);
+    setStatus('working', '⛏', 'Mining… trying nonce ' + fmt(nonce) + ' (' + fmt(attempts) + ' hashes so far).');
+    setTimeout(step, 0); // yield so the UI updates
+  }
+
+  function startMining() {
+    if (mining) return;
+    mining = true;
+    nonce = 0; attempts = 0; startTime = performance.now();
+    go.disabled = true; stop.disabled = false;
+    statVerify.textContent = '—';
+    setStatus('working', '⛏', 'Mining…');
+    setTimeout(step, 0);
+  }
+
+  go.addEventListener('click', startMining);
+  stop.addEventListener('click', () => {
+    if (!mining) return;
+    mining = false;
+    go.disabled = false; stop.disabled = true;
+    setStatus('neutral', '⛏', 'Stopped at ' + fmt(attempts) + ' attempts. Press Mine to resume from scratch.');
+  });
+  reset.addEventListener('click', () => resetState());
+  dataIn.addEventListener('input', () => { if (!mining) resetState('Block data changed — press Mine.'); });
+
+  seg.addEventListener('click', e => {
+    const btn = e.target.closest('.diff-btn');
+    if (!btn) return;
+    difficulty = parseInt(btn.dataset.d, 10);
+    [...seg.children].forEach(b => b.classList.toggle('active', b === btn));
+    hint.textContent = difficulty >= 5 ? '5 can take a few seconds' : (difficulty === 4 ? '4 may take a moment' : 'try increasing it');
+    updateTarget();
+    if (!mining) resetState('Difficulty set to ' + difficulty + ' — press Mine.');
+  });
+
+  updateTarget();
+})();
+</script>
+</body>
+</html>

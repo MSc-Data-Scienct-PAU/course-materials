@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Response Selector</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --danger: #ef4444;
+    --success: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+  .container {
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+  }
+  @media (max-width: 860px) {
+    .container { grid-template-columns: 1fr; }
+  }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  .subtitle { color: var(--muted); margin-bottom: 20px; font-size: 14px; }
+
+  .wheel-panel {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .wheel-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1;
+    margin: 16px 0 24px;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+  .pointer {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 28px solid #f87171;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    z-index: 2;
+  }
+  .center-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0f172a;
+    border: 6px solid var(--panel);
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    z-index: 1;
+  }
+  .center-btn:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
+  .center-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .winner {
+    min-height: 50px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--success);
+  }
+  .winner.empty { color: var(--muted); font-weight: 400; font-size: 15px; }
+
+  .side-panel {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .input-row { display: flex; gap: 8px; }
+  input[type="text"] {
+    flex: 1;
+    padding: 10px 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  button.action {
+    padding: 10px 14px;
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  button.action:hover { background: #0ea5e9; }
+  button.action.secondary { background: #475569; color: var(--text); }
+  button.action.secondary:hover { background: #64748b; }
+
+  .student-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 380px;
+    overflow-y: auto;
+  }
+  .student-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background: #0f172a;
+    font-size: 14px;
+  }
+  .student-list li.disabled {
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+  .student-list .toggle {
+    background: transparent;
+    border: 1px solid #475569;
+    color: var(--text);
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .student-list .toggle:hover { background: #334155; }
+  .student-list .toggle.enable { border-color: var(--success); color: var(--success); }
+  .student-list .toggle.disable { border-color: var(--danger); color: var(--danger); }
+
+  .stats { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="wheel-panel">
+      <h1>Response Selector</h1>
+      <div class="subtitle">Spin the wheel to pick a student to respond.</div>
+      <div class="winner empty" id="winner">Spin to select a student</div>
+      <div class="wheel-wrap">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="500" height="500"></canvas>
+        <button class="center-btn" id="spinBtn">SPIN</button>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <aside class="side-panel">
+      <div>
+        <div class="section-title">Disable / Enable a name</div>
+        <div class="input-row">
+          <input type="text" id="toggleInput" placeholder="Type a name…" autocomplete="off" />
+          <button class="action" id="toggleBtn">Toggle</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Students</div>
+        <ul class="student-list" id="studentList"></ul>
+      </div>
+      <div>
+        <button class="action secondary" id="enableAllBtn">Enable all</button>
+      </div>
+    </aside>
+  </div>
+
+<script>
+  const STUDENTS = [
+    "nunclud",
+    "judeeonuoha-AI",
+    "giftwarieta",
+    "Oluwatiseunla",
+    "Oluwadolapolasisi",
+    "Elo007",
+    "emmanuelgreen1",
+    "Edithmaris",
+    "AN-JOLA",
+    "akeem-saka",
+    "Dave-Aganran",
+    "Temiwaji",
+    "Obinikelvin",
+    "koluwalana",
+    "tamara786",
+    "ochade"
+  ];
+
+  const state = STUDENTS.map(name => ({ name, enabled: true }));
+
+  const COLORS = [
+    "#38bdf8", "#a78bfa", "#f472b6", "#fb923c",
+    "#facc15", "#4ade80", "#2dd4bf", "#f87171"
+  ];
+
+  const canvas = document.getElementById("wheel");
+  const ctx = canvas.getContext("2d");
+  const spinBtn = document.getElementById("spinBtn");
+  const winnerEl = document.getElementById("winner");
+  const listEl = document.getElementById("studentList");
+  const toggleInput = document.getElementById("toggleInput");
+  const toggleBtn = document.getElementById("toggleBtn");
+  const enableAllBtn = document.getElementById("enableAllBtn");
+  const statsEl = document.getElementById("stats");
+
+  let rotation = 0;
+  let spinning = false;
+
+  function activeStudents() {
+    return state.filter(s => s.enabled);
+  }
+
+  function drawWheel() {
+    const W = canvas.width;
+    const H = canvas.height;
+    const cx = W / 2;
+    const cy = H / 2;
+    const radius = Math.min(W, H) / 2 - 10;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const active = activeStudents();
+    if (active.length === 0) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#334155";
+      ctx.fill();
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "18px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("No students enabled", cx, cy);
+      return;
+    }
+
+    const slice = (Math.PI * 2) / active.length;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rotation);
+
+    active.forEach((s, i) => {
+      const start = i * slice - Math.PI / 2;
+      const end = start + slice;
+
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, start, end);
+      ctx.closePath();
+      ctx.fillStyle = COLORS[i % COLORS.length];
+      ctx.fill();
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.save();
+      ctx.rotate(start + slice / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 16px sans-serif";
+      const label = s.name.length > 18 ? s.name.slice(0, 17) + "…" : s.name;
+      ctx.fillText(label, radius - 18, 6);
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
+
+  function renderList() {
+    listEl.innerHTML = "";
+    state.forEach(s => {
+      const li = document.createElement("li");
+      if (!s.enabled) li.classList.add("disabled");
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = s.name;
+      const btn = document.createElement("button");
+      btn.className = "toggle " + (s.enabled ? "disable" : "enable");
+      btn.textContent = s.enabled ? "Disable" : "Enable";
+      btn.addEventListener("click", () => {
+        s.enabled = !s.enabled;
+        renderList();
+        drawWheel();
+        updateStats();
+      });
+      li.appendChild(nameSpan);
+      li.appendChild(btn);
+      listEl.appendChild(li);
+    });
+  }
+
+  function updateStats() {
+    const total = state.length;
+    const active = activeStudents().length;
+    statsEl.textContent = `${active} of ${total} students in the spin`;
+  }
+
+  function toggleByName(input) {
+    const query = input.trim().toLowerCase();
+    if (!query) return;
+    const match = state.find(s => s.name.toLowerCase() === query)
+               || state.find(s => s.name.toLowerCase().includes(query));
+    if (!match) {
+      alert(`No student matched "${input}"`);
+      return;
+    }
+    match.enabled = !match.enabled;
+    renderList();
+    drawWheel();
+    updateStats();
+    toggleInput.value = "";
+  }
+
+  toggleBtn.addEventListener("click", () => toggleByName(toggleInput.value));
+  toggleInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") toggleByName(toggleInput.value);
+  });
+
+  enableAllBtn.addEventListener("click", () => {
+    state.forEach(s => s.enabled = true);
+    renderList();
+    drawWheel();
+    updateStats();
+  });
+
+  function spin() {
+    if (spinning) return;
+    const active = activeStudents();
+    if (active.length === 0) {
+      alert("No students enabled — enable at least one.");
+      return;
+    }
+    spinning = true;
+    spinBtn.disabled = true;
+    winnerEl.classList.add("empty");
+    winnerEl.textContent = "Spinning…";
+
+    const slice = (Math.PI * 2) / active.length;
+    const winnerIdx = Math.floor(Math.random() * active.length);
+    const extraTurns = 5 + Math.floor(Math.random() * 3);
+    // Pointer is at top (-PI/2). We want winner slice center at top.
+    // Slice i center angle (before rotation) = i*slice - PI/2 + slice/2.
+    // After rotation R, want that angle to equal -PI/2 (mod 2PI).
+    // => R = -PI/2 - (i*slice - PI/2 + slice/2) (mod 2PI)
+    //    = -(i*slice + slice/2)
+    const targetAngle = -(winnerIdx * slice + slice / 2);
+    const currentMod = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const targetMod = ((targetAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    let delta = targetMod - currentMod;
+    if (delta < 0) delta += Math.PI * 2;
+    const finalRotation = rotation + extraTurns * Math.PI * 2 + delta;
+
+    const duration = 4500;
+    const start = performance.now();
+    const startRot = rotation;
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function frame(now) {
+      const elapsed = now - start;
+      const t = Math.min(elapsed / duration, 1);
+      rotation = startRot + (finalRotation - startRot) * easeOut(t);
+      drawWheel();
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        spinning = false;
+        spinBtn.disabled = false;
+        const winner = active[winnerIdx];
+        winnerEl.classList.remove("empty");
+        winnerEl.textContent = `🎉 ${winner.name}`;
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  spinBtn.addEventListener("click", spin);
+
+  renderList();
+  drawWheel();
+  updateStats();
+</script>
+</body>
+</html>
