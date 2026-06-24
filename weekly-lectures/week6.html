@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dApps &amp; the Web3 Stack</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Outfit', sans-serif; background: #fff; color: #1a1a1a; overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+.deck { width: 100vw; height: 100vh; position: relative; }
+
+.slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; display: none; padding: 64px 80px 80px 80px; }
+.slide.active { display: flex; }
+
+/* ===== LAYOUTS ===== */
+.layout-center { flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.layout-split { flex-direction: row; align-items: center; }
+.layout-split .text-side { flex: 1; padding-right: 64px; display: flex; flex-direction: column; justify-content: center; }
+.layout-split .visual-side { flex: 1; display: flex; align-items: center; justify-content: center; }
+.layout-top { flex-direction: column; justify-content: flex-start; padding-top: 72px; }
+
+/* ===== TYPOGRAPHY ===== */
+.title { font-weight: 700; font-size: 52px; line-height: 1.15; letter-spacing: -0.02em; color: #1a1a1a; }
+.title-large { font-size: 64px; }
+.subtitle { font-weight: 400; font-size: 20px; line-height: 1.65; color: #5f5f5f; margin-top: 20px; max-width: 560px; }
+.label { font-weight: 600; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: #1a73e8; margin-bottom: 16px; }
+.accent { color: #1a73e8; }
+
+/* ===== COMPONENT LIST ===== */
+.components { margin-top: 28px; display: flex; flex-direction: column; gap: 13px; max-width: 520px; }
+.component-row { display: flex; align-items: flex-start; gap: 14px; }
+.component-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 9px; flex-shrink: 0; }
+.component-text { font-size: 16.5px; line-height: 1.5; color: #444; }
+.component-text strong { color: #1a1a1a; font-weight: 600; }
+.component-text code { font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 14px; background: #f0f3f8; padding: 1px 6px; border-radius: 5px; color: #1a73e8; }
+.role-line { margin-top: 26px; font-size: 16px; color: #1a1a1a; }
+.role-line strong { font-weight: 700; }
+
+/* ===== HOOK ===== */
+.hook-flow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
+.hook-word { font-size: 26px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.01em; }
+.hook-arrow { color: #1a73e8; font-size: 20px; font-weight: 400; }
+
+/* ===== DEFINITION CALLOUT ===== */
+.definition { margin-top: 24px; padding: 22px 26px; background: #e8f0fe; border-left: 4px solid #1a73e8; border-radius: 8px; max-width: 540px; }
+.definition .def-term { font-weight: 700; font-size: 17px; color: #1a73e8; margin-bottom: 6px; }
+.definition .def-body { font-size: 17px; line-height: 1.55; color: #333; }
+.definition .def-body strong { color: #1a1a1a; font-weight: 600; }
+
+/* ===== TABLE ===== */
+.cmp-table { margin-top: 32px; width: 100%; max-width: 960px; border-collapse: collapse; }
+.cmp-table th { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #999; padding: 0 18px 14px 18px; border-bottom: 1px solid #eee; }
+.cmp-table td { font-size: 15.5px; color: #444; padding: 15px 18px; border-bottom: 1px solid #f2f2f2; vertical-align: top; }
+.cmp-table tr td:first-child { font-weight: 700; color: #1a1a1a; }
+.type-tag { display: inline-flex; align-items: center; gap: 8px; }
+.type-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ===== ROADMAP ===== */
+.roadmap { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; }
+.roadmap-row { display: flex; align-items: flex-start; gap: 16px; }
+.roadmap-badge { padding: 5px 12px; border-radius: 8px; background: #e8f0fe; color: #1a73e8; font-weight: 600; font-size: 12.5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.roadmap-text { font-size: 16.5px; line-height: 1.55; color: #444; }
+.roadmap-text strong { color: #1a1a1a; font-weight: 600; }
+.closer { margin-top: 34px; padding-top: 24px; border-top: 1px solid #eee; font-size: 19px; font-weight: 500; color: #1a1a1a; font-style: italic; max-width: 600px; line-height: 1.5; }
+
+/* ===== NAV ===== */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; height: 52px; background: #fff; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; z-index: 100; }
+.nav-counter { font-size: 13px; font-weight: 500; color: #999; }
+.nav-dots { display: flex; gap: 6px; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: #ddd; cursor: pointer; transition: background 0.2s, width 0.2s; }
+.nav-dot.active { background: #1a73e8; width: 20px; border-radius: 3px; }
+.nav-btns { display: flex; gap: 4px; }
+.nav-btn { width: 36px; height: 36px; border: 1px solid #eee; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; color: #666; display: flex; align-items: center; justify-content: center; }
+.nav-btn:hover { background: #f8f8f8; color: #1a1a1a; }
+
+svg text { font-family: 'Outfit', sans-serif; }
+
+.course-tag { position: fixed; top: 26px; right: 32px; z-index: 101; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ccc; }
+
+/* ===== LOGO ===== */
+.logo-footer { position: fixed; top: 22px; left: 32px; z-index: 101; opacity: 0.55; }
+.logo-footer img { height: 26px; width: auto; }
+.title-logo { margin-bottom: 36px; }
+.title-logo img { height: 54px; width: auto; }
+
+/* ===== CODE BLOCK ===== */
+.code-block { margin-top: 22px; background: #f6f8fc; border: 1px solid #e6ebf5; border-radius: 12px; padding: 18px 20px; font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.75; color: #3a4252; max-width: 540px; white-space: pre; overflow-x: auto; }
+.code-block .kw { color: #1a73e8; font-weight: 600; }
+.code-block .ty { color: #2f9e44; }
+.code-block .st { color: #d9822b; }
+.code-block .cm { color: #a0a8b8; font-style: italic; }
+.code-block .fn { color: #7c3aed; font-weight: 600; }
+
+/* ===== dAPP SIMULATOR ===== */
+.dapp { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 14px; }
+.dapp-card { border: 1.5px solid #e3ebf8; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 24px rgba(26,115,232,0.06); }
+.dapp-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #eef2f8; background: #fafbfe; }
+.dapp-title { font-weight: 700; font-size: 14px; color: #1a1a1a; }
+.connect-btn { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; padding: 8px 16px; border: none; border-radius: 100px; background: #FCC419; color: #7a5c00; cursor: pointer; transition: filter 0.15s; }
+.connect-btn:hover { filter: brightness(0.96); }
+.wallet-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; background: #fff6e5; color: #b8860b; padding: 6px 12px; border-radius: 100px; border: 1px solid #f0e0b8; font-family: 'SFMono-Regular', ui-monospace, monospace; }
+.disconnect { font-size: 11px; color: #aaa; cursor: pointer; margin-left: 8px; text-decoration: underline; }
+
+.dapp-body { padding: 26px 20px; min-height: 168px; display: flex; flex-direction: column; justify-content: center; }
+.dapp-prompt { text-align: center; color: #999; font-size: 15px; }
+.dapp-bal-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #aaa; }
+.dapp-bal-val { font-size: 38px; font-weight: 800; color: #1a73e8; font-variant-numeric: tabular-nums; line-height: 1.1; margin: 4px 0 2px; transition: background 0.5s; border-radius: 8px; display: inline-block; padding: 0 6px; }
+.dapp-bal-val.flash { background: #fff2bf; transition: background 0s; }
+.dapp-bal-unit { font-size: 16px; font-weight: 600; color: #9aa3b2; }
+.dapp-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.dapp-btn { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; padding: 11px 18px; border: none; border-radius: 10px; background: #1a73e8; color: #fff; cursor: pointer; transition: filter 0.15s; }
+.dapp-btn.alt { background: #fff; color: #1a73e8; border: 1.5px solid #cfe0fb; }
+.dapp-btn:hover { filter: brightness(0.95); }
+.dapp-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+.wallet-popup { border: 1.6px solid #f0d488; background: #fffdf6; border-radius: 14px; padding: 16px 18px; }
+.wp-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: #b8860b; margin-bottom: 12px; }
+.wp-rows { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.wp-row { display: flex; justify-content: space-between; font-size: 13.5px; }
+.wp-row .k { color: #999; }
+.wp-row .v { font-weight: 600; color: #1a1a1a; font-family: 'SFMono-Regular', ui-monospace, monospace; }
+.wp-btns { display: flex; gap: 10px; }
+.wp-btn { flex: 1; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; padding: 10px; border-radius: 10px; cursor: pointer; border: none; }
+.wp-btn.confirm { background: #2f9e44; color: #fff; }
+.wp-btn.reject { background: #fff; color: #c0392b; border: 1.5px solid #ecc4c0; }
+
+.dapp-status { font-size: 14px; line-height: 1.5; padding: 11px 14px; border-radius: 10px; display: flex; gap: 9px; align-items: flex-start; }
+.dapp-status.neutral { background: #f6f6f6; color: #666; }
+.dapp-status.pending { background: #fff6e5; color: #b8860b; }
+.dapp-status.ok { background: #eafbef; color: #2f7d3f; }
+.dapp-status.bad { background: #fdeaea; color: #c0392b; }
+.dapp-status .d-mark { font-weight: 700; flex-shrink: 0; }
+.dapp-status .tx { font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 12px; opacity: 0.85; display: block; margin-top: 2px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .slide { padding: 48px 32px 72px 32px; }
+  .layout-split { flex-direction: column; }
+  .layout-split .text-side { padding-right: 0; padding-bottom: 24px; }
+  .title { font-size: 34px; }
+  .title-large { font-size: 40px; }
+  .cmp-table td, .cmp-table th { padding: 10px 8px; font-size: 13px; }
+  .hook-word { font-size: 19px; }
+  .dapp, .code-block { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck"></div>
+
+<div class="logo-footer" id="logoFooter">
+  <img id="logoFooterImg" alt="Pan-Atlantic University" />
+</div>
+
+<div class="course-tag" id="courseTag">Week 6</div>
+
+<div class="nav">
+  <div class="nav-counter" id="counter">1 / 9</div>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="prev()">←</button>
+    <button class="nav-btn" onclick="next()">→</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 9;
+let cur = 0;
+const PAU_LOGO = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxASEhUPEBEVFRUVFRgVFxYXFhsaFhUXFRcbFhYYFRcZHSggGBslHRcXIjEhJSkrLi4uGB8zOD8sNygtLisBCgoKDg0OGhAQGDcmICYrLS8vLS0tLS0tLS0rLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tN//AABEIAJgBTAMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAAAwUBBgcEAgj/xABKEAABAwICBggBCAYJAgcAAAABAAIDBBESIQUGFDFSkQcTIjJBUXGBYRcjVHKTobHBFUJiktLjFiQzQ3OCsrPCNKIlRmODhNHw/8QAGQEBAQEBAQEAAAAAAAAAAAAAAAECAwQF/8QAJhEBAAMAAgEEAgEFAAAAAAAAAAECEQMhMRIiQVETYYEEIzJCcf/aAAwDAQACEQMRAD8A7TDAzCOw3cPAeS+9nZwN5BZg7rfQfgpEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCbOzgbyClRBFs7OBvIJs7OBvIKVEEWzs4G8gmzs4G8gpUQRbOzgbyCrdJxMDh2W93yHmVbqq0r3x9X8yrAsYO630H4KRRwd1voPwUigKpnknfO6KKRrGsjY4ksxkue5+XeFrBo5q2VZow3lqXf+q1ns2Jn5uKsDGy1f0pn2H8xZ2Ws+lM+w/mLnfSR0gTMldRUTsGDKSUd7F4tZ5WyuVzdmm6sO6wVVRi34uuff73L0U4LWjWJvEP0XstX9KZ9h/MWdlrPpTPsP5i0jo017kqX7HVkGW145NxkAzc1wGWIDO/jn5LpK43iazktROqzZav6Uz7D+Ymy1n0pn2H8xc46RekCZsrqOifgDDhklHfLvFrD4Aea53Hpusa7G2qqA7z66S/3uzXanBa0bLM2iH6L2Ws+lM+w/mJstZ9KZ9h/MWm9GevUlU40lUQZQ3Ex4FusA7wcN2Iefiui3XG8TWclqJiVZstZ9KZ9h/MTZaz6Uz7D+YuadIfSDMJn0lE/A2Mlr5W99zwe01h/VA3XGdwVoEOm6xrsbaqoDt9+uf8Afc2Puu1OC0xrM3h+itlq/pTPsP5izo2abrZIZnh5a2N7XBmG4eXgi1zuLN/xWn9GevD6smkqrdc1uJrwLdY0b7jcHC49VuL8qth44Hj7N7CP9ZXG1ZrOS1E6skRFhRERAREQEREBERAREQEREBERAREQEREBERAREQFVaV74+r+ZVqqrSvfH1fzKsCxg7rfQfgpFHB3W+g/BSKAq3Q/967znk+4hv/FWRVZoQdmT/Hm/3HK/A/OOmmuFTOH94TSYvXGV412TpD6PX1Mhq6QtEpt1kZNg+wtiafB1rb8jZc8ZqNpQuwbHJfzOHD+9ey+hTlrNfLjNZ1HqI1x0jSBm/rgfYAl3/bdfo9aJ0d6h7ETUVBa6dwwgNzbE07wD4uOVz8Fva8nPeLW6dKRkPy3pJrhNKH94SyB31g83+9eddh6Qejp9RIaujw9Y7+0jcbB5GWJp3B1t4O9c/j1G0oXYNjkHxJaG/vXsvXTlrMeXOazp0etcdJUuDf1lz9UNdiv7XX6JK0no71F2G885a6dww9nNsbd5APiTlc/BbwvJz3i1unSsZD8sVjXCR4d3g94d9YOId991EuvdIHRzJPK6rosON+ckRNsTvFzDuufEHyutDi1F0o52AUbwfNxaG87r2U5azHlzmsvvo1a86SpsHg5xP1cDr/ku7Vg/rMB/ZlHMMP8AxWt9Huo4oAZpiHzvFjh7sbb3wtvvJyuVs1d/bU/1pP8AbK8fNeLX6dKxkLBcu1w1y0nT15o4GxEPLOqBZcuD+yLnEP1rhdRXGOk6V7NMQPjZje2OBzWcThK8tb7mycERNu4LeFro3XzSMNZHR6Shjb1jmN7LSHN6w4WuviIcLr76QNfaukqzTU3V4Wxtc7EwuOJ2fEPDDzVb+idKaR0hDU1NL1DInRkk5NDY347C5u5xKpq+vbLXaRkMM03WMkhYYmYsByaxzvIfNjku0UrM7nwzMzjqWrWnZ6vR21NwmfDILWs0yMJAFr7t3itX1E6QqipqDS1XVgvaerLW4fnG54TdxvcX5L66FK29PUQE9x4eB8Htsfvb965tQ0EvVSV0Jzp5mXtvbiJs/wBA4Ae6leOu2iTZ6l0zUPW/SVVWupalsQbG1/W4W2LXNOCwOI37RXS1xvokqXy11XKLB8kT3/shz5Wu3eVyt6ZSabuMVVRWuL2gkva+dj1nkufLWPVnhqs9IOkrWeahijdBh6ySTD2m3GENucrjxIHuqvUTXapq46vr8GOGPrGYW2ys7eCTfMBVXSjXA6Ro4ix8ghAkLGC73YnhxDW+dowqrUOpa3S0kZjeyOpEzOrkGFzWv+caHDwyFvdbjjj8fjvyzvuffykaX6kVJbB1Zf1eLq97w3ERbH5K50BrnpR9bHSVDYR1kZeMLN4dEXxkOxHK9lB0s6JgpaOCKnjEbDO51gTa5jtfM+QHJbvoDQlMW01Y6Idc2CNofncDBa1t24lLWp6dzzpETvlqmo2uOkqqs2adsWBgf1uFti0tu0WOI37VgumrkfRcf/FKz/3P91bLFr3HPFWlsb4zSxvu5xHaPaYMNviPvWOWnu6j6Ws9dtMrOlSvEz8Ai6oSODewb4A7LPFvw25roOvmnKmmoxVUmA2c0uLxcCNwOYFxncsXFS5v6PDOomxbQZOuwfM4CwR4MfniC6RpOu6/V1sl7nq2MPrHIGH/AErrelYmuR84kTPbGjNfaqfR1ROwR7TTkOeMPZMRN8QbfwAI37wvFHr7pL9HvrnCG/XtiYcGRGFxfcYt4OFaMIpqSKOducdZTyxnytidG5p+Is1wXSujPREFVozqqiMSN697rEkZi2eR+KXrSsbnWkTM9KUa86b66OlwQdbK1rmNwbw9uJueOwNl69H696SkoqmpAixwSRg9iwDHA4rjFmQbKDTEQbrFTsaLBvUtA8gIyAFtOt+g6al0bWbPEGdYy7rEnEQ4eZ+KzM16684d/ap0Vr3WDR0+kKhkbiJBHCGizSTkcYxE2BPwVO7XPTracaQLYuoLrDsC2ZsMsWLDfK914/8Ay7/8v/kFu2q+kaen0LBNVC8TW2cMOPMykDs+OdkmIr36fnCO/lsWqWln1dJFUva1rpG3IbfCMyMr+iuFX6BrYJoGTUwtE4XaMOHK5Hd8M7qwXmny6QKq0r3x9X8yrVVWle+Pq/mUgWMHdb6D8FIo4O630H4KRQCuXab6RH0FVPSCma/DKXBxkLSesAfuwnxJXUStT0pW6MbNJS15hxSESNEzRhc0tDb4nC3ea7xW+OY3uNSWnfLHJ9CZ9sf4E+WKT6Ez7U/wLYKvov0ZN85E6SMHP5t4LT6Yg6w9FLFqjoWgHWTiO4zxVDw7d5NOV/QLtvD8VZy321kdMr/obPtj/Avr5Y5PoTPtj/AtodrXoKb5h8kBbus+IhnNzA0LzVXRpouo+cgLowc7wvBYfQODgPZN44/yrh38S189Mcn0Jn2x/gT5YpLA7EyxyB642JG/9RbJBqRoahHW1AY6361S8Fv7ps37l6HaY0UWCaQw7NM4xMLo/m3OjtcZtsM8e+w7Km8fxU7+2p/LHJ9CZ9sf4Fn5Y5PoTPtj/AthqujnRNUOtguwHO8DwWH0Bu0eyU+oOiKMdbUWcB+tUPGH93Jp5K+rh+j3Nc+WV/0Nn2x/gWflik+hM+2P8C2n+mGgv7HrYMO63Unq+eDDZQ1PR/oirHWU9mA/rU7xg9m5tHsFN44/yrh39tc+WOT6Ez7Y/wACutTNdn6Sq2sMDYxFG99w8uuThaB3RbxXopujvRNKOtn7YGd53jAPVos0+6ttXtIUM8xFCYyyCMtd1bcLQZHDCBYAHKN266lp489tSN+ZbKuca06hVtVWmtjqo2YSwxgh2JgZmNwtvufddHWr1uthj0gzRuzOcXgOEmIWwkEk4bbgWkb1zpNon2tTnyv6qN7o3tY7C8scGu8GuIsD7HNaLqjqRW0RqDtMZM0RaLA5SZ4Hm48MRUo6RXdRNUmikAhlbC4F47xuD4eBDR/mXpdr8wvo2xU7nisAwuDwMDg7C9pFsy3xWoresTEJsKrVbUGuo5JZBVR/OQvZ2Q7vnuONx4FejU3UKalM7KiaOWGeMscxoOZvk7MeV+anHSC61Wdif/VO/wBsZ/OdWfDKwu70BX07X53V0koo3na3Oa0B4yIcGjwzuM/ZameSU6fGoOo0uj55JXzMka+MsbYEO7wIJvluHgt7K0Gq6RZGy1ETdHyv2YuEha8dlrSbPIw5AgXSTpGdamLKGR5qWlzGh4vdr3MLRlmezf3WbUvadlYmIfFTqTWO0n+khUx2Egc0WOIRgYcG63dJHuvPpLUGtkrzXtqowetD23DsTWNOTchbu5K1pekGEw1M00MkT6UgPidYuJe7C0A/Wyz3KPROvr5J4qeehkhM7ccJxhweLEgnIWBt961vJCdPvpC1SqNIGJsUzGMjxEtcDm45Aiw8Bce6vdAaPngpGU8sofKxhbjAy3nB4eALR7LVWdJl4HVGxP7MzIMPWC5e8ONh2fDDa3xWKfpMLntjdQvaDO2nLjILNkcbYT2d+8+yno5JjM8LsKqi6NtJxPdLFXsY998bm4wXXNzfLzUlL0aVjIKiAVMV5zHiNnZhji5wdl4m3JXMfSMzqauV9O5jqVzGmMvGJ5e9zMssrYStw0TVmaGOZ0ZjL2BxY7MtuL2PxVtfkjykRDR/6D1v6N/Ru1R367Fexw9Va+Dde+OzlDHqBWtoHaPFVH2pxJezsODCbs3XzdhPsulWRY/LZfTDnzdQZXaN/R80zHSMkL4XgHCy5vY5Xsbu5q+1E1fkoabZ5Htecbn3be1nWyz9FsaKTe0xkrkOb6V1Crpa86QbVRgiRrmXBxNY3IN3W3XHutp110NNWUppoZGxlzm4i69iwZkZA7zbkr9EnktOT9GOe6L6P5W0M2j6idpD3iSNzAbRuGdyDa+YVGOjPSZYKZ1azqAbht3loO+4Zb7rrryLUc1oT0wq9WdE7JTR0uPH1bbYrWvck7rm2/zVoiLnM720Kq0r3x9X8yrVVWle+Pq/mUgWMHdb6D8FIo4O630H4KRQFz/pF1NfXzROikax7YnDtA2fhcCBcbrYj4FdAWva8zzxUr6qmI62D5wXFwW7pAR4jCSfZbpMxbpJjpx6XVPTVKcLI52jzglOE/uOB5gL06N6OdJ1Lscw6occz8T/AGaCTzsth0f0w9n+sUhxecT8j7O3cyq/THS3UvypoY4RxP7b/YZNH3r1by/X8ufteufoekw9iraXeToyGn3DiRyWtz6naZpXERxzAcVPKcJ/cIdzC+Y9ftLMPWGdxB4424D/ANo+4raNGdMLg21TSgnzidYH/K/dzT+9H7Pa1/R/R9pWqdima6Mcc8l3ewuXH3st70nqT1ui6ehZI0OjeHCQtNi52PFlvAJeqmLpLqayeKkpIGxda8NL3nG8NPeIAsAcIOea6ZVwkxuYw4XYeweFwHZNvGxAXLkveJjemoiHCqrUnTFI49UyS3HTyGx9Q0tcPcL6otQ9L1TgZWOaOOokJI9ASXLYdHdLcrLx1lKHPaS1xiOHtNNjdrr2z+Ki0v0vTEWpadsf7UhxEejRYcyV13l+o/6z7UvyPPw/9Y3F/hHDzxXWu1moml6V14mPcOOnkI5gFrvuUX9PdL363aH2/wANvV/6bfetj0R0vSgWqqdr/wBqI4SfVrrj70/vR+z2qCl1I0vVO+dZIBx1EhsPZxLj7BdP6ONWjQsnjc8PcZRdwFh2WDIX8i4rUdK9L0jhhpKYNJ/WlOI3+DG2v7ldN1fikbTx9aQZHNxyEC15H9p+Xlcm3wAXLltfPd01WI+Fiucay1UcGnaWeZwjj2Ytxuybf53K/hvHNdHXlrtHQzDDNEyQA3Ae0OsfhdcaWyWpjXHJ6hp0VpCUHsy1xMZ8H9sOGHzyBXn0TRPp9J0MAfihL2zQHzbM0F1vdtvb4rtT9GwFgidDGWNzDCxpaPRtrDeeaz+joLsPVR3jyjOAdgfsZdn2XX83UxjPpc41PbHPVaYhxA9a94HxBfI2/MhUeoNSaipoaQ3/AKntD3c+zyJt7rsdPo6CNxfHDGxx3uawAm+eZAzzWKfRsEbi+OGNjjcFzWNDjc3NyBdT8sd9HpcdkradukNIyvrZacB92iFwBnLb3jzBvmLe69us2lWVlTouWGQ05kDsLiGl8d5MANt1yWnmuoP0HSEkmmhJJuSY23JO8k23r6/Q1L2Ts8XZ7vzbezY3GHLLPNX8sbuHpcm0VU08MelY65hnLZmtkeDaSQda5gdnk2zgD7r06q6XENbTU1HVvqaeVmJ0cou6mAaTbFbK1vDLf5rqjdHQAucIYwX984Bd/j2jbte6jo9EU0RJigjYXZEtYBcHwNhuUnlid6X0uf8ARXDT1EdU2RrJAKrrWggEDI4Xi/vYp0ax09RLXB4ZJhq+vZcA2zcGyN+/NdEpNHwRX6qKNl9+Bobe3nYZpSaOgiJMUMcZORLGBpPrYZqTybv7Mcu1q0ZTHTtPGTZs5Y+Vl8i9uLBceOItb96600ZLzS6Ogc8SuhjLxazywFwtus6116lm1/VEfpYjBERYUREQEREBERAREQFVaV74+r+ZVqqrSvfH1fzKsCxg7rfQfgpFHB3W+g/BSKAoqmEPa5jsw4Fp9CLFSrBCDRv6BaLnF3w4JGnC8RPLO03IktBsL793ipW0ug9F5nqWPHE4ySm3kCS5U3SpqpNNLFVUjSZHWieAQ0mwJY65I8iOS1/RPRRWyG872QDx/vHn2aQB7kr0xETXbX/hj58N3Z0maKkJje94acrviOA+u/L1CP1Q0JW/PRNjN8y6CUt355tabA+ypqjoehw/N1cgf5uY0tJ9BYjmtU0l0baSgJMbWygfrRvDSfVriCOZSK8f+tsJ35h1TQOqdBSyh1NEA5gN3lxe+7ha2JxNsr5fELZgqXU7Qgo6WOn3utikPFI7Nx/L2V2uFp2fLUNQ0nqPo2okeZoQ15JfiY8sc8OzJOE2JBvn6KBmgtB6O+ckETXeBlfjf/la4k39Ap+kvV11XS4oh89CccdjYkbntvcbx94XOtF9F2kJTimLIQfFzsbj/labfeu1MmvdsZnz4b58p+ir4McmHdi6p2D/AO7ey+n6A0HpH5yMROJ3mF+B3+YNI+8Km+R6DB/1cuPzwNw/u7/vWs6T6LdIRG8OCYeDmEMf+685fvKxHH/rbDv5hv8ABqRoyBzI4YQ6RzgcT3l7msacTiA49ndhuB+st1Wh9FOrb6aF9ROLTTOsbm5DIyWgXub3Nz6WW+rjyT3m61AiIsKIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAqrSvfH1fzKtVVaV74+r+ZVgWMHdb6D8FIo4O630H4KRQEREEFXTiRpYbi/iN4IzBHxBsVyLXLXbS0U76IBsTgbAxtxPkB3OaXXtf4DLcuyKur6bC4VLGYnsaQQAMT2by1pP618x8VvjtFZ7jUmHDBpTTkPzxkrQN93iRzfdrwW29l0vo503W18Zlqms6tjgGPaLGVw33F7WGXv6KfQGvLK2Z9NDTzNcwXc5+HCzO3bANwbg2HmFtkEDWNDWiw/M5k+pNyunJfYya5LNY/an1p1rpaBgdM4lzu7G3N7vjbwHxOS0dvTGMWdEcPn1wxcsFvvXPtbdJvqayeZ5/vHMb+yxji1rRy5kqpXen9PXO2ZvL9Jatay01fGXwOvhyexws9l+IeXxGRWndI+smkaFzIoMLYpB2JcOJ9xvZnkCPDLMLQOj/AEm+nr4HMOUj2xPHg5shw5+hIPsv0HU04eBuu04mki9j/wDrj3XC9Y47/cNRPqhwP9Iad/t+srrb7/OYfPu2w29lt2oetukq6Q0kmBzQ0mSaxa9jd1ssi43sMh4nwWx1Ov0cdXsD6So624aLYTivuLe1ctNib/ArZdG0eDE9wb1khDnloyyFg0eYAyVvydd1/wCER+3rhjDWhrRYAWA8gNy+0CLztiIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICqtK98fV/Mq1VVpXvj6v5lWBYwd1voPwUijg7rfQfgpFAREQFgrKIKWel2aR9TEy7JCHTsaO0SBYSstvNt7fEAWzGdrDM17Q9hDmuAIIzBB3EKQhVUtG+FxlpxdpJc+G9sRO90d8mu8xuPwOavkcR6RNXX0lW92E9VM50kbvDtElzCeIG+XlZasv04dnq4i1zWyMOT2Pbm1w3te05tcPI5qib0b6JxY9lz8utlLf3cdl6qf1MRGWhzmn05n0XavSVNWyoLSIoHB5d4Oe3NrR5m+Z9F3Ctq2RNMjzYDLLMknc1o8STkAvPJNDTMbFGwDwjhjAubcLRkB5k5DxWKSge5wnqLGQXwNHciB3hvE629x9BYLhyX9c7LURiPR9CXS7XOwCXCWRjImKMm+Enxcd7vDwG65tgEWVz1oREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQFVaV74+r+ZVqqrSvfH1fzKsCxg7rfQfgpFHB3W+g/BSKAiIgIiICFEQeCt0aHO61jjHLa2NviPKRu57fgd3gQoMdY75vDGw+MoJcLebI8jiOeRNh+0rZE0eOi0cyO7hdz3d6Rxu93lc+Q8ALAeC9YWUQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAVVpXvj6v5lWqqtK98fV/MqwPdDOzCO03cPEeS+9oZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hNoZxt5hYRMGdoZxt5hVek5Glws4d3zHmVlFYhH/9k=";
+
+const FRONT  = '#1a73e8'; /* frontend / dApp */
+const WALLET = '#FCC419'; /* wallet */
+const CHAIN  = '#51CF66'; /* contract / chain */
+const EXT    = '#e05555'; /* external world / oracle / risk */
+
+const slides = [
+
+// ── 1: TITLE ──
+`<div class="slide layout-center">
+  <div class="title-logo"><img src="${PAU_LOGO}" alt="Pan-Atlantic University" /></div>
+  <div class="label">Blockchain &amp; Mobile Technology · Week 6</div>
+  <div class="title title-large">dApps &amp; the<br>Web3 Stack</div>
+  <div class="subtitle" style="text-align:center;margin-top:24px;">Where everything connects — turning contracts into apps people can actually use.</div>
+  <div style="margin-top:44px;">
+    <svg viewBox="0 0 460 130" width="460" height="130" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        const layers = [
+          {x:50,  c:FRONT,  l:'app',      g:'▦'},
+          {x:165, c:WALLET, l:'wallet',   g:'🦊'},
+          {x:280, c:CHAIN,  l:'contract', g:'{}'},
+          {x:395, c:EXT,    l:'data',     g:'◎'},
+        ];
+        layers.forEach((p,i) => {
+          out += '<rect x="'+(p.x-34)+'" y="40" width="68" height="50" rx="10" fill="'+p.c+'" opacity="0.12" stroke="'+p.c+'" stroke-width="1.6"/>';
+          out += '<text x="'+p.x+'" y="70" text-anchor="middle" font-size="16">'+p.g+'</text>';
+          out += '<text x="'+p.x+'" y="110" text-anchor="middle" font-size="12" font-weight="600" fill="'+p.c+'">'+p.l+'</text>';
+          if (i < layers.length-1) {
+            out += '<line x1="'+(p.x+34)+'" y1="65" x2="'+(layers[i+1].x-34)+'" y2="65" stroke="#ccc" stroke-width="2"/>';
+            out += '<polygon points="'+(layers[i+1].x-34)+',61 '+(layers[i+1].x-34)+',69 '+(layers[i+1].x-26)+',65" fill="#ccc"/>';
+          }
+        });
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 2: HOOK ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">The Missing Piece</div>
+    <div class="title">Great Code.<br>But Where's the<br><span class="accent">App?</span></div>
+    <div class="subtitle" style="margin-top:14px;">We have contracts, tokens, and governance running on a trustless network. But nobody wants to call <code>transfer()</code> from a terminal. A <strong style="color:#1a1a1a;">dApp</strong> is the human-friendly face.</div>
+    <div class="hook-flow">
+      <span class="hook-word" style="color:#999;">raw contract</span>
+      <span class="hook-arrow">→</span>
+      <span class="hook-word accent">an app anyone can use</span>
+    </div>
+    <div class="subtitle">This week we connect the front-end to the chain, add the supporting cast — wallets, oracles, storage — and see how a full Web3 app fits together.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // terminal (ugly) -> app (friendly)
+        out += '<text x="95" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#999">TODAY</text>';
+        out += '<rect x="40" y="74" width="110" height="76" rx="8" fill="#23272e" />';
+        out += '<text x="52" y="98" font-size="10" fill="#6ee7a8" font-family="monospace">$ token</text>';
+        out += '<text x="52" y="113" font-size="10" fill="#9aa3b2" font-family="monospace">.transfer(</text>';
+        out += '<text x="52" y="128" font-size="10" fill="#9aa3b2" font-family="monospace">0x9f..,30)</text>';
+        out += '<text x="95" y="170" text-anchor="middle" font-size="10" fill="#999">experts only</text>';
+
+        out += '<text x="285" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="'+FRONT+'">A dAPP</text>';
+        out += '<rect x="225" y="74" width="120" height="120" rx="12" fill="'+FRONT+'" opacity="0.06" stroke="'+FRONT+'" stroke-width="1.6"/>';
+        out += '<rect x="240" y="88" width="90" height="22" rx="6" fill="'+WALLET+'" opacity="0.3"/>';
+        out += '<text x="285" y="103" text-anchor="middle" font-size="9" font-weight="700" fill="#b8860b">Connect Wallet</text>';
+        out += '<text x="285" y="132" text-anchor="middle" font-size="20" font-weight="800" fill="'+FRONT+'">120</text>';
+        out += '<text x="285" y="147" text-anchor="middle" font-size="9" fill="#999">PAU</text>';
+        out += '<rect x="244" y="158" width="38" height="22" rx="6" fill="'+FRONT+'" opacity="0.85"/>';
+        out += '<text x="263" y="173" text-anchor="middle" font-size="9" fill="#fff">Send</text>';
+        out += '<rect x="288" y="158" width="42" height="22" rx="6" fill="#fff" stroke="'+FRONT+'" stroke-width="1"/>';
+        out += '<text x="309" y="173" text-anchor="middle" font-size="9" fill="'+FRONT+'">Mint</text>';
+        out += '<text x="285" y="214" text-anchor="middle" font-size="10" fill="#999">anyone can use it</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 3: WHAT IS A dAPP ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${FRONT};">The Core Idea</div>
+    <div class="title">What Makes an<br>App <span style="color:${FRONT};">Decentralized?</span></div>
+    <div class="definition">
+      <div class="def-term">dApp (decentralized application)</div>
+      <div class="def-body">A normal front-end whose <strong>back-end is a smart contract on a blockchain</strong> — instead of a company's private server.</div>
+    </div>
+    <div class="components" style="margin-top:18px;">
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text"><strong>No single owner</strong> can shut it down or change the rules</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text"><strong>Always-on &amp; censorship-resistant</strong> — it runs as long as the chain does</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text"><strong>Open &amp; composable</strong> — apps plug into each other like Lego</div></div>
+    </div>
+    <div class="role-line">Even the front-end can live on decentralized storage — so there's <strong style="color:${FRONT};">no central server at all</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // web2 stack vs web3 stack
+        out += '<text x="95" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#999">WEB2 APP</text>';
+        const w2=[['Browser','#bbb'],['Company API','#bbb'],['Company DB','#e05555']];
+        w2.forEach((b,i)=>{ const y=60+i*54; out+='<rect x="35" y="'+y+'" width="120" height="40" rx="8" fill="#f4f4f4" stroke="'+b[1]+'" stroke-width="1.4"/>'; out+='<text x="95" y="'+(y+24)+'" text-anchor="middle" font-size="11" fill="#555">'+b[0]+'</text>'; if(i<2){out+='<line x1="95" y1="'+(y+40)+'" x2="95" y2="'+(y+54)+'" stroke="#ccc" stroke-width="1.4"/>';} });
+        out += '<text x="95" y="246" text-anchor="middle" font-size="9" fill="'+EXT+'">one company owns it</text>';
+
+        out += '<text x="285" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="'+FRONT+'">dAPP</text>';
+        const w3=[['Front-end',FRONT],['Wallet',WALLET],['Smart contracts',CHAIN]];
+        w3.forEach((b,i)=>{ const y=60+i*54; out+='<rect x="225" y="'+y+'" width="120" height="40" rx="8" fill="'+b[1]+'" opacity="0.1" stroke="'+b[1]+'" stroke-width="1.5"/>'; out+='<text x="285" y="'+(y+24)+'" text-anchor="middle" font-size="11" font-weight="600" fill="'+b[1]+'">'+b[0]+'</text>'; if(i<2){out+='<line x1="285" y1="'+(y+40)+'" x2="285" y2="'+(y+54)+'" stroke="#ccc" stroke-width="1.4"/>';} });
+        out += '<text x="285" y="246" text-anchor="middle" font-size="9" fill="'+CHAIN+'">no one owns it</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 4: WALLETS ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:#b8860b;">Your Key to the Chain</div>
+    <div class="title">Wallets: Login<br>for <span style="color:#b8860b;">Web3</span></div>
+    <div class="subtitle" style="margin-top:12px;">A wallet holds your keys and <em>is</em> your identity online. It signs transactions and connects to dApps. Think MetaMask.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text"><strong>Holds your keys</strong> — the private key never leaves it</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text"><strong>Signs transactions</strong> — the dApp <em>requests</em>, you approve</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text"><strong>"Connect Wallet"</strong> is the Web3 equivalent of logging in</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text">A dApp <strong>cannot move your funds</strong> without your signature</div></div>
+    </div>
+    <div class="role-line">You stay in control: nothing happens to your assets unless <strong style="color:#b8860b;">you sign for it</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // dApp asks, wallet signs, back to dApp
+        out += '<rect x="40" y="140" width="100" height="70" rx="10" fill="'+FRONT+'" opacity="0.1" stroke="'+FRONT+'" stroke-width="1.6"/>';
+        out += '<text x="90" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="'+FRONT+'">dApp</text>';
+        out += '<text x="90" y="188" text-anchor="middle" font-size="9" fill="#999">front-end</text>';
+        out += '<rect x="240" y="140" width="100" height="70" rx="10" fill="'+WALLET+'" opacity="0.16" stroke="'+WALLET+'" stroke-width="1.6"/>';
+        out += '<text x="290" y="166" text-anchor="middle" font-size="18">🦊</text>';
+        out += '<text x="290" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#b8860b">Wallet</text>';
+        // request arrow
+        out += '<line x1="140" y1="160" x2="240" y2="160" stroke="'+FRONT+'" stroke-width="1.6" opacity="0.5"/>';
+        out += '<polygon points="240,156 240,164 248,160" fill="'+FRONT+'" opacity="0.6"/>';
+        out += '<text x="190" y="150" text-anchor="middle" font-size="10" fill="#999">"please sign"</text>';
+        // signed arrow back
+        out += '<line x1="240" y1="192" x2="140" y2="192" stroke="'+CHAIN+'" stroke-width="1.6" opacity="0.5"/>';
+        out += '<polygon points="140,188 140,196 132,192" fill="'+CHAIN+'" opacity="0.6"/>';
+        out += '<text x="190" y="210" text-anchor="middle" font-size="10" fill="#2f9e44">✓ signed tx</text>';
+        // key stays
+        out += '<text x="290" y="240" text-anchor="middle" font-size="11" fill="'+EXT+'">🔑 key never leaves</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 5: FRONT-END TO CHAIN ──
+`<div class="slide layout-split">
+  <div class="text-side" style="flex:0.95;">
+    <div class="label" style="color:${FRONT};">Wiring It Up</div>
+    <div class="title">Connecting the<br>Front-End to the<br><span style="color:${FRONT};">Chain</span></div>
+    <div class="subtitle" style="margin-top:12px;font-size:18px;">A browser can't talk to the blockchain directly. It reaches it through a <strong style="color:#1a1a1a;">provider</strong> (an RPC node like Infura or Alchemy) using a library.</div>
+    <div class="components" style="margin-top:16px;">
+      <div class="component-row"><div class="component-dot" style="background:${CHAIN};"></div><div class="component-text"><strong>Reads</strong> (check a balance) are free and instant</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text"><strong>Writes</strong> (a transaction) need a wallet signature + gas + a wait</div></div>
+    </div>
+  </div>
+  <div class="visual-side" style="align-items:flex-start;padding-top:30px;">
+    <div class="code-block"><span class="cm">// connect to the chain via a provider</span>
+<span class="kw">const</span> provider = <span class="kw">new</span> ethers.<span class="fn">JsonRpcProvider</span>(url);
+<span class="kw">const</span> token = <span class="kw">new</span> ethers.<span class="fn">Contract</span>(addr, abi, signer);
+
+<span class="cm">// READ — free, no wallet needed</span>
+<span class="kw">const</span> bal = <span class="kw">await</span> token.<span class="fn">balanceOf</span>(me);
+
+<span class="cm">// WRITE — wallet signs, costs gas</span>
+<span class="kw">await</span> token.<span class="fn">transfer</span>(to, <span class="st">30</span>);</div>
+  </div>
+</div>`,
+
+// ── 6: ACTIVITY — USE A dAPP ──
+`<div class="slide layout-split">
+  <div class="text-side" style="padding-right:48px;flex:0.88;">
+    <div class="label" style="color:${FRONT};">Try It · Live</div>
+    <div class="title" style="font-size:44px;">Use a <span style="color:${FRONT};">dApp</span></div>
+    <div class="subtitle" style="margin-top:12px;font-size:18px;">Connect the (simulated) wallet, then mint or send PAU Coin. Each write pops up the <strong style="color:#1a1a1a;">wallet</strong> to confirm — approve it and watch the transaction go pending, then confirm on-chain.</div>
+    <div class="components" style="margin-top:18px;">
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text"><strong>Reject</strong> in the wallet → nothing happens, <em>no gas</em></div></div>
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text">Send more than you hold → it <strong>reverts on-chain</strong>, gas still spent</div></div>
+    </div>
+    <div class="role-line">This is the real round trip: app → wallet → network → contract → back.</div>
+  </div>
+  <div class="visual-side" style="align-items:flex-start;padding-top:6px;">
+    <div class="dapp">
+      <div class="dapp-card">
+        <div class="dapp-top">
+          <span class="dapp-title">🪙 PAU Coin Faucet</span>
+          <span id="walletArea"><button id="connectBtn" class="connect-btn">Connect Wallet</button></span>
+        </div>
+        <div class="dapp-body" id="dappBody">
+          <div class="dapp-prompt" id="dappPrompt">Connect your wallet to begin.</div>
+        </div>
+      </div>
+      <div id="walletPopup" style="display:none;"></div>
+      <div id="dappStatus" class="dapp-status neutral"><span class="d-mark">›</span><span id="dappStatusText">Not connected.</span></div>
+    </div>
+  </div>
+</div>`,
+
+// ── 7: ORACLES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${EXT};">The Outside World</div>
+    <div class="title">Oracles: Eyes<br>for a <span style="color:${EXT};">Blind</span> Chain</div>
+    <div class="subtitle" style="margin-top:12px;">A smart contract is sealed off — it can't fetch a web page, a price, or the weather. It only knows what's already on-chain. <strong style="color:#1a1a1a;">Oracles</strong> feed it the outside world.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text"><strong>Bring off-chain data on-chain</strong> — prices, weather, sports, randomness</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text"><strong>Powers DeFi</strong> — a loan contract needs to know the real ETH price</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text"><strong>Chainlink</strong> and others use many sources to stay trustworthy</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${EXT};"></div><div class="component-text">The <strong>oracle problem</strong> — a bad data feed can fool a perfect contract</div></div>
+    </div>
+    <div class="role-line">Decentralize the data source too, or you've quietly re-added a <strong style="color:${EXT};">single point of trust</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // outside data -> oracle -> contract
+        out += '<text x="65" y="50" text-anchor="middle" font-size="10" font-weight="700" fill="#999">OFF-CHAIN</text>';
+        const feeds=['$ price','weather','API'];
+        feeds.forEach((f,i)=>{ const y=72+i*52; out+='<rect x="20" y="'+y+'" width="92" height="38" rx="8" fill="#f4f4f4" stroke="#ccc" stroke-width="1.3"/>'; out+='<text x="66" y="'+(y+23)+'" text-anchor="middle" font-size="11" fill="#666">'+f+'</text>'; out+='<line x1="112" y1="'+(y+19)+'" x2="158" y2="180" stroke="'+EXT+'" stroke-width="1.2" opacity="0.35"/>'; });
+        // oracle
+        out += '<circle cx="190" cy="180" r="34" fill="'+EXT+'" opacity="0.12" stroke="'+EXT+'" stroke-width="1.7"/>';
+        out += '<text x="190" y="178" text-anchor="middle" font-size="11" font-weight="700" fill="'+EXT+'">ORACLE</text>';
+        out += '<text x="190" y="193" text-anchor="middle" font-size="8" fill="#999">bridge</text>';
+        // contract
+        out += '<line x1="224" y1="180" x2="268" y2="180" stroke="'+CHAIN+'" stroke-width="1.6" opacity="0.5"/>';
+        out += '<polygon points="268,176 268,184 276,180" fill="'+CHAIN+'" opacity="0.6"/>';
+        out += '<rect x="280" y="150" width="80" height="60" rx="10" fill="'+CHAIN+'" opacity="0.1" stroke="'+CHAIN+'" stroke-width="1.6"/>';
+        out += '<text x="320" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#2f9e44">{}</text>';
+        out += '<text x="320" y="196" text-anchor="middle" font-size="8" fill="#999">contract</text>';
+        out += '<text x="320" y="125" text-anchor="middle" font-size="9" fill="#999">on-chain</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 8: IPFS / STORAGE ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label" style="color:${FRONT};">Where the Big Files Go</div>
+    <div class="title">Decentralized<br>Storage &amp; <span style="color:${FRONT};">IPFS</span></div>
+    <div class="subtitle" style="margin-top:12px;">Storing data on-chain is wildly expensive — every node keeps it forever. So big files live <em>off</em>-chain, on decentralized storage.</div>
+    <div class="components">
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text"><strong>IPFS</strong> — the InterPlanetary File System; <strong>Arweave</strong> for permanence</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text"><strong>Content-addressed</strong> — a file's address is the <em>hash of its contents</em> (a CID)</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${FRONT};"></div><div class="component-text">The address itself <strong>proves the file is unchanged</strong> — tamper it and the hash changes</div></div>
+      <div class="component-row"><div class="component-dot" style="background:${WALLET};"></div><div class="component-text">An <strong>NFT</strong> stores only the small CID on-chain; the art sits on IPFS</div></div>
+    </div>
+    <div class="role-line">The chain holds the <strong style="color:${FRONT};">pointer</strong>; IPFS holds the <strong style="color:${FRONT};">payload</strong>.</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 380 360" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // on-chain pointer -> IPFS file
+        out += '<rect x="30" y="150" width="120" height="64" rx="10" fill="'+CHAIN+'" opacity="0.1" stroke="'+CHAIN+'" stroke-width="1.6"/>';
+        out += '<text x="90" y="174" text-anchor="middle" font-size="11" font-weight="700" fill="#2f9e44">ON-CHAIN</text>';
+        out += '<text x="90" y="194" text-anchor="middle" font-size="9" fill="#666" font-family="monospace">CID: Qm7f…3a</text>';
+        out += '<text x="90" y="232" text-anchor="middle" font-size="9" fill="#999">tiny pointer</text>';
+        // arrow
+        out += '<line x1="150" y1="182" x2="220" y2="182" stroke="'+FRONT+'" stroke-width="1.6" opacity="0.5"/>';
+        out += '<polygon points="220,178 220,186 228,182" fill="'+FRONT+'" opacity="0.6"/>';
+        out += '<text x="186" y="172" text-anchor="middle" font-size="9" fill="#999">resolves to</text>';
+        // IPFS nodes holding the file
+        out += '<text x="300" y="80" text-anchor="middle" font-size="10" font-weight="700" fill="'+FRONT+'">IPFS</text>';
+        const pts=[[260,130],[330,120],[300,180],[345,185],[270,200]];
+        for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++) out+='<line x1="'+pts[i][0]+'" y1="'+pts[i][1]+'" x2="'+pts[j][0]+'" y2="'+pts[j][1]+'" stroke="'+FRONT+'" stroke-width="1" opacity="0.16"/>';
+        pts.forEach((p,i)=>{ out+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="13" fill="'+FRONT+'" opacity="0.12" stroke="'+FRONT+'" stroke-width="1.3"/>'; out+='<text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="middle" font-size="10">'+(i===0?'🖼':'▦')+'</text>'; });
+        out += '<text x="300" y="232" text-anchor="middle" font-size="9" fill="#999">file lives across many nodes</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+// ── 9: THE FULL STACK + WHERE THIS GOES ──
+`<div class="slide layout-split">
+  <div class="text-side">
+    <div class="label">It All Fits Together</div>
+    <div class="title">The Full<br><span class="accent">Web3 Stack</span></div>
+    <div class="subtitle" style="margin-top:12px;">Every piece from the last six weeks, in one picture — a complete decentralized app.</div>
+    <div class="roadmap">
+      <div class="roadmap-row"><div class="roadmap-badge">Week 7</div><div class="roadmap-text"><strong>Web4</strong> — AI agents that drive this whole stack on your behalf</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Week 8</div><div class="roadmap-text"><strong>Challenges &amp; ethics</strong> — scalability, regulation, and the project brief</div></div>
+      <div class="roadmap-row"><div class="roadmap-badge">Weeks 9–11</div><div class="roadmap-text"><strong>You build</strong> — wallet, contract, and front-end into a working dApp</div></div>
+    </div>
+    <div class="closer">"You can now picture an entire dApp end to end. Next we hand the controls to AI agents."</div>
+  </div>
+  <div class="visual-side">
+    <svg viewBox="0 0 400 380" width="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+      ${(() => {
+        let out = '';
+        // user
+        out += '<circle cx="60" cy="190" r="20" fill="#eee" stroke="#bbb" stroke-width="1.4"/>';
+        out += '<text x="60" y="196" text-anchor="middle" font-size="16">👤</text>';
+        out += '<text x="60" y="226" text-anchor="middle" font-size="9" fill="#999">user</text>';
+        // frontend
+        out += '<rect x="110" y="160" width="74" height="60" rx="10" fill="'+FRONT+'" opacity="0.1" stroke="'+FRONT+'" stroke-width="1.6"/>';
+        out += '<text x="147" y="186" text-anchor="middle" font-size="14">▦</text>';
+        out += '<text x="147" y="206" text-anchor="middle" font-size="9" font-weight="600" fill="'+FRONT+'">front-end</text>';
+        // wallet (above)
+        out += '<rect x="200" y="60" width="74" height="56" rx="10" fill="'+WALLET+'" opacity="0.16" stroke="'+WALLET+'" stroke-width="1.6"/>';
+        out += '<text x="237" y="84" text-anchor="middle" font-size="14">🦊</text>';
+        out += '<text x="237" y="104" text-anchor="middle" font-size="9" font-weight="600" fill="#b8860b">wallet</text>';
+        // contracts (center-right)
+        out += '<rect x="200" y="160" width="74" height="60" rx="10" fill="'+CHAIN+'" opacity="0.12" stroke="'+CHAIN+'" stroke-width="1.7"/>';
+        out += '<text x="237" y="186" text-anchor="middle" font-size="14" font-weight="700" fill="#2f9e44">{}</text>';
+        out += '<text x="237" y="206" text-anchor="middle" font-size="9" font-weight="600" fill="#2f9e44">contracts</text>';
+        // oracle (below)
+        out += '<rect x="200" y="264" width="74" height="50" rx="10" fill="'+EXT+'" opacity="0.12" stroke="'+EXT+'" stroke-width="1.5"/>';
+        out += '<text x="237" y="286" text-anchor="middle" font-size="13">◎</text>';
+        out += '<text x="237" y="303" text-anchor="middle" font-size="9" font-weight="600" fill="'+EXT+'">oracle</text>';
+        // IPFS (right)
+        out += '<rect x="312" y="160" width="64" height="60" rx="10" fill="'+FRONT+'" opacity="0.08" stroke="'+FRONT+'" stroke-width="1.4"/>';
+        out += '<text x="344" y="186" text-anchor="middle" font-size="13">🖼</text>';
+        out += '<text x="344" y="206" text-anchor="middle" font-size="9" font-weight="600" fill="'+FRONT+'">IPFS</text>';
+        // links
+        const link=(x1,y1,x2,y2,c)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="1.5" opacity="0.45"/>';
+        out += link(80,190,110,190,'#bbb');
+        out += link(184,182,200,182,CHAIN);          // frontend-contract
+        out += link(160,160,224,116,WALLET);          // frontend-wallet
+        out += link(237,160,237,116,WALLET);          // wallet-contract
+        out += link(237,220,237,264,EXT);             // contract-oracle
+        out += link(274,190,312,190,FRONT);           // contract-ipfs
+        out += '<text x="200" y="350" text-anchor="middle" font-size="10" fill="#999">front-end · wallet · contracts · oracle · storage</text>';
+        return out;
+      })()}
+    </svg>
+  </div>
+</div>`,
+
+];
+
+
+// ============ RENDER ============
+const deck = document.getElementById('deck');
+const dots = document.getElementById('dots');
+
+document.getElementById('logoFooterImg').src = PAU_LOGO;
+document.getElementById('logoFooter').style.display = 'none';
+
+slides.forEach((html, i) => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  const slide = wrapper.firstElementChild;
+  slide.classList.toggle('active', i === 0);
+  slide.id = 'sl' + i;
+  deck.appendChild(slide);
+
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => go(i);
+  dots.appendChild(dot);
+});
+
+function go(i) {
+  if (i < 0 || i >= TOTAL || i === cur) return;
+  document.getElementById('sl' + cur).classList.remove('active');
+  cur = i;
+  document.getElementById('sl' + cur).classList.add('active');
+  document.getElementById('logoFooter').style.display = (cur === 0) ? 'none' : 'block';
+  document.querySelectorAll('.nav-dot').forEach((d,j) => d.classList.toggle('active', j === cur));
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + TOTAL;
+  document.getElementById('courseTag').textContent = 'Week 6 · ' + (cur+1) + '/' + TOTAL;
+}
+
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.tagName === 'SELECT')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => { let d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) d < 0 ? next() : prev(); });
+
+// ============ dAPP SIMULATOR ============
+(function initDapp() {
+  const $ = id => document.getElementById(id);
+  const walletArea = $('walletArea'), body = $('dappBody'), popup = $('walletPopup');
+  const status = $('dappStatus'), statusText = $('dappStatusText');
+  if (!walletArea) return;
+
+  const randHex = n => Array.from({length:n}, () => '0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+  const GAS_MINT = 51000, GAS_XFER = 35000;
+
+  const st = { connected:false, address:'', balance:0, busy:false, pending:null };
+
+  function setStatus(kind, mark, text, tx) {
+    status.className = 'dapp-status ' + kind;
+    statusText.innerHTML = text + (tx ? '<span class="tx">' + tx + '</span>' : '');
+    status.querySelector('.d-mark').textContent = mark;
+  }
+
+  function shortAddr(a) { return a.slice(0,6) + '…' + a.slice(-4); }
+
+  function renderWalletArea() {
+    if (!st.connected) {
+      walletArea.innerHTML = '<button id="connectBtn" class="connect-btn">Connect Wallet</button>';
+      $('connectBtn').addEventListener('click', connect);
+    } else {
+      walletArea.innerHTML = '<span class="wallet-pill">🦊 ' + shortAddr(st.address) + '</span><span class="disconnect" id="discBtn">disconnect</span>';
+      $('discBtn').addEventListener('click', disconnect);
+    }
+  }
+
+  function renderBody() {
+    if (!st.connected) {
+      body.innerHTML = '<div class="dapp-prompt" id="dappPrompt">Connect your wallet to begin.</div>';
+      return;
+    }
+    body.innerHTML =
+      '<div><div class="dapp-bal-label">Your balance</div>' +
+      '<div><span class="dapp-bal-val" id="balVal">' + st.balance + '</span> <span class="dapp-bal-unit">PAU</span></div></div>' +
+      '<div class="dapp-actions">' +
+        '<button class="dapp-btn" id="actMint" ' + (st.busy?'disabled':'') + '>Mint 100 PAU</button>' +
+        '<button class="dapp-btn alt" id="actSend" ' + (st.busy?'disabled':'') + '>Send 30 → Alice</button>' +
+      '</div>';
+    $('actMint').addEventListener('click', () => askWallet('mint', 100, GAS_MINT));
+    $('actSend').addEventListener('click', () => askWallet('transfer', 30, GAS_XFER));
+  }
+
+  function connect() {
+    st.connected = true;
+    st.address = '0x' + randHex(40);
+    renderWalletArea(); renderBody();
+    setStatus('ok', '✓', 'Wallet connected: <b>' + shortAddr(st.address) + '</b>. Now try a transaction.');
+  }
+
+  function disconnect() {
+    st.connected = false; st.busy = false; st.pending = null;
+    popup.style.display = 'none';
+    renderWalletArea(); renderBody();
+    setStatus('neutral', '›', 'Disconnected. Balance is preserved on-chain.');
+  }
+
+  function askWallet(fn, amount, gas) {
+    if (st.busy) return;
+    st.pending = { fn, amount, gas };
+    const label = fn === 'mint' ? 'mint(' + amount + ')' : 'transfer(Alice, ' + amount + ')';
+    popup.style.display = 'block';
+    popup.className = '';
+    popup.innerHTML =
+      '<div class="wallet-popup">' +
+        '<div class="wp-head">🦊 Confirm transaction</div>' +
+        '<div class="wp-rows">' +
+          '<div class="wp-row"><span class="k">Function</span><span class="v">' + label + '</span></div>' +
+          '<div class="wp-row"><span class="k">From</span><span class="v">' + shortAddr(st.address) + '</span></div>' +
+          '<div class="wp-row"><span class="k">Est. network fee</span><span class="v">~' + gas.toLocaleString('en-US') + ' gas</span></div>' +
+        '</div>' +
+        '<div class="wp-btns">' +
+          '<button class="wp-btn reject" id="wpReject">Reject</button>' +
+          '<button class="wp-btn confirm" id="wpConfirm">Confirm</button>' +
+        '</div>' +
+      '</div>';
+    $('wpReject').addEventListener('click', rejectTx);
+    $('wpConfirm').addEventListener('click', confirmTx);
+    setStatus('pending', '🦊', 'Waiting for you to confirm in the wallet…');
+  }
+
+  function rejectTx() {
+    popup.style.display = 'none';
+    st.pending = null;
+    setStatus('bad', '✗', 'Rejected in wallet — <b>no transaction sent, no gas charged.</b>');
+  }
+
+  function confirmTx() {
+    const p = st.pending;
+    popup.style.display = 'none';
+    st.busy = true; renderBody();
+    setStatus('pending', '⏳', 'Transaction submitted — broadcasting to the network…');
+
+    setTimeout(() => {
+      // on-chain revert path: sending more than balance
+      if (p.fn === 'transfer' && st.balance < p.amount) {
+        st.busy = false; renderBody();
+        setStatus('bad', '❌', 'Reverted on-chain: <b>"balance too low"</b> — you hold ' + st.balance + ', tried to send ' + p.amount + '. Gas still spent.');
+        return;
+      }
+      if (p.fn === 'mint') st.balance += p.amount;
+      else st.balance -= p.amount;
+
+      const block = (21900000 + Math.floor(Math.random()*60000)).toLocaleString('en-US');
+      const hash = '0x' + randHex(8) + '…' + randHex(6);
+      st.busy = false; renderBody();
+      const bv = $('balVal');
+      if (bv) { bv.classList.remove('flash'); void bv.offsetWidth; bv.classList.add('flash'); }
+      setStatus('ok', '✅', 'Confirmed in block #' + block + '.', 'tx ' + hash);
+    }, 1500);
+  }
+
+  renderWalletArea(); renderBody();
+  setStatus('neutral', '›', 'Not connected.');
+})();
+</script>
+</body>
+</html>
